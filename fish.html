@@ -51,10 +51,12 @@ input:focus,textarea:focus{border-color:var(--acc)}
 #topc{position:absolute;top:22px;left:0;right:0;text-align:center}
 #topc small{display:block;letter-spacing:6px;font-size:12px;color:var(--mute)}
 #topc h1{margin:2px 0 0;font-size:20px;font-weight:600;letter-spacing:4px}
-#duty{position:absolute;left:112px;top:40px;padding:6px 18px;border-radius:99px;background:rgba(10,38,50,.55);border:1px solid var(--line);font-size:20px;cursor:pointer;text-shadow:0 1px 3px rgba(8,40,80,.7)}
+#duty{position:absolute;left:112px;top:38px;padding:8px 24px;border-radius:99px;background:rgba(10,38,50,.55);border:1px solid var(--line);font-size:24px;font-weight:600;cursor:pointer;text-shadow:0 1px 3px rgba(8,40,80,.7)}
 #duty b{color:var(--gold)}
-#dutyDlg input[type=number]{width:84px;text-align:center}#dutyDlg input[type=date]{width:190px}
-.dtday{display:flex;justify-content:space-between;padding:6px 12px;border-radius:10px;background:var(--cell);margin-bottom:4px}
+#dutyDlg .box{font-size:19px;padding:22px 28px}#dutyDlg h2{font-size:32px}#dutyDlg .mute{font-size:17px}
+#dutyDlg input[type=number]{width:92px;text-align:center;font-size:24px;padding:10px}#dutyDlg input[type=date]{width:210px;font-size:21px;padding:10px}
+#dutyDlg button{font-size:19px;padding:13px 20px}
+.dtday{display:flex;justify-content:space-between;font-size:21px;padding:7px 16px;border-radius:10px;background:var(--cell);margin-bottom:4px}
 #wk{display:inline-block;margin-top:4px;padding:3px 22px;border-radius:99px;background:rgba(10,38,50,.55);font-size:22px;font-weight:600;letter-spacing:1px}
 #topc b{font-size:40px;font-variant-numeric:tabular-nums;letter-spacing:2px}
 #tl{position:absolute;left:44px;top:34px;display:flex;flex-direction:column;gap:12px}
@@ -391,15 +393,15 @@ button.pri{background:var(--acc);color:#04231a;font-weight:700}
   </div></div>
   <input type="file" id="bkFile" accept=".json,application/json" style="display:none">
   <!-- 值日生 -->
-  <div class="dlg" id="dutyDlg"><div class="box" style="width:660px">
+  <div class="dlg" id="dutyDlg"><div class="box" style="width:780px">
     <div class="cap">CLASS DUTY</div><h2 style="margin-bottom:4px">🧹 值日生</h2>
     <p class="mute" id="dtInfo" style="margin-top:0;line-height:1.7"></p>
     <p class="mute" style="margin:10px 0 4px">今天的值日生（要臨時換人，改座號後按「套用今天」）</p>
     <div class="row" id="dtToday"></div>
     <div class="row" style="flex-wrap:wrap;margin-top:8px"><button id="dtApply" class="pri">套用今天</button><button id="dtReset">恢復自動輪替</button><button id="dtSkip">今天不上課（不輪替）</button></div>
-    <p class="mute" style="margin:14px 0 4px">接下來的值日生</p><div id="dtNext"></div>
+    <p class="mute" style="margin:14px 0 4px">接下來幾天的值日生</p><div id="dtNext"></div>
     <p class="mute" style="margin:14px 0 4px">輪替設定</p>
-    <div class="row" style="flex-wrap:wrap"><span class="mute">每日人數</span><input id="dtN" type="number" min="1" max="4"><span class="mute">起算日</span><input id="dtStart" type="date"><span class="mute">當天第一位座號</span><input id="dtFirst" type="number" min="1"></div>
+    <div class="row" style="flex-wrap:wrap"><span class="mute">每日人數</span><input id="dtN" type="number" min="1" max="4"><span class="mute">起算日</span><input id="dtStart" type="date"><span class="mute">第一位座號</span><input id="dtFirst" type="number" min="1"></div>
     <label style="display:flex;gap:8px;align-items:center;margin:10px 0"><input type="checkbox" id="dtOn" style="width:auto"> 首頁顯示值日生</label>
     <div class="row" style="justify-content:flex-end"><button id="dtSave" class="pri">儲存設定</button><button id="dtClose">關閉</button></div>
   </div></div>
@@ -756,7 +758,7 @@ function openDuty(){const d=new Date(),ds=ymd(d),n=S.n||30,N=Math.max(1,Math.min
  $('#dtToday').innerHTML=cur.map((s,i)=>`<input class="dtSeat" type="number" min="1" max="${n}" value="${s}" aria-label="第 ${i+1} 位">`).join('')+`<span class="mute">${S.dutyOv&&S.dutyOv[ds]?'（今天是手動調整）':dutyWork(d)?'（自動輪替）':'（今天不上課）'}</span>`;
  $('#dtSkip').textContent=S.dutySkip&&S.dutySkip[ds]?'恢復今天上課':'今天不上課（不輪替）';
  let x=new Date(d),h='',c=0;if(dutyWork(x)){h+=`<div class="dtday"><b>今天（${x.getMonth()+1}/${x.getDate()} 星期${WKD[x.getDay()]}）</b><span>${cur.join(' 號、')} 號</span></div>`;c++}
- while(c<6){x=dutyNextDay(x);h+=`<div class="dtday"><span>${x.getMonth()+1}/${x.getDate()} 星期${WKD[x.getDay()]}</span><span>${dutyFor(ymd(x)).join(' 號、')} 號</span></div>`;c++}
+ while(c<5){x=dutyNextDay(x);h+=`<div class="dtday"><span>${x.getMonth()+1}/${x.getDate()} 星期${WKD[x.getDay()]}</span><span>${dutyFor(ymd(x)).join(' 號、')} 號</span></div>`;c++}
  $('#dtNext').innerHTML=h;$('#dtN').value=S.dutyN||2;$('#dtStart').value=S.dutyStart||ds;$('#dtFirst').value=S.dutyFirst||1;$('#dtOn').checked=S.dutyOn!==false;$('#dutyDlg').classList.add('on')}
 $('#duty').onclick=openDuty;$('#dtClose').onclick=()=>$('#dutyDlg').classList.remove('on');
 $('#dtApply').onclick=()=>{const n=S.n||30,v=$$('.dtSeat').map(i=>+i.value);if(v.some(s=>!(s>=1&&s<=n))||new Set(v).size!==v.length)return uiAlert(`座號要在 1 到 ${n} 之間，而且不能重複`);requireTeacher(()=>{S.dutyOv=S.dutyOv||{};S.dutyOv[today()]=v;save();renderDuty();openDuty()})};
