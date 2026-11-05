@@ -51,6 +51,10 @@ input:focus,textarea:focus{border-color:var(--acc)}
 #topc{position:absolute;top:22px;left:0;right:0;text-align:center}
 #topc small{display:block;letter-spacing:6px;font-size:12px;color:var(--mute)}
 #topc h1{margin:2px 0 0;font-size:20px;font-weight:600;letter-spacing:4px}
+#duty{position:absolute;left:112px;top:40px;padding:6px 18px;border-radius:99px;background:rgba(10,38,50,.55);border:1px solid var(--line);font-size:20px;cursor:pointer;text-shadow:0 1px 3px rgba(8,40,80,.7)}
+#duty b{color:var(--gold)}
+#dutyDlg input[type=number]{width:84px;text-align:center}#dutyDlg input[type=date]{width:190px}
+.dtday{display:flex;justify-content:space-between;padding:6px 12px;border-radius:10px;background:var(--cell);margin-bottom:4px}
 #wk{display:inline-block;margin-top:4px;padding:3px 22px;border-radius:99px;background:rgba(10,38,50,.55);font-size:22px;font-weight:600;letter-spacing:1px}
 #topc b{font-size:40px;font-variant-numeric:tabular-nums;letter-spacing:2px}
 #tl{position:absolute;left:44px;top:34px;display:flex;flex-direction:column;gap:12px}
@@ -237,6 +241,7 @@ button.pri{background:var(--acc);color:#04231a;font-weight:700}
   <div id="bg"></div><div id="tone"></div>
 
   <div id="topc" class="ui"><small>CLASS DASHBOARD</small><h1>班級儀表板</h1><div id="wk"></div></div>
+  <div id="duty" class="ui" title="點一下查看或調整值日生"></div>
   <div id="tl" class="ui">
     <button class="sq" id="eye" title="隱藏介面">👁</button>
   </div>
@@ -385,6 +390,19 @@ button.pri{background:var(--acc);color:#04231a;font-weight:700}
     <div class="row" style="justify-content:flex-end;margin-top:10px"><button id="ytCancel">取消</button><button class="pri" id="ytSave">儲存</button></div>
   </div></div>
   <input type="file" id="bkFile" accept=".json,application/json" style="display:none">
+  <!-- 值日生 -->
+  <div class="dlg" id="dutyDlg"><div class="box" style="width:660px">
+    <div class="cap">CLASS DUTY</div><h2 style="margin-bottom:4px">🧹 值日生</h2>
+    <p class="mute" id="dtInfo" style="margin-top:0;line-height:1.7"></p>
+    <p class="mute" style="margin:10px 0 4px">今天的值日生（要臨時換人，改座號後按「套用今天」）</p>
+    <div class="row" id="dtToday"></div>
+    <div class="row" style="flex-wrap:wrap;margin-top:8px"><button id="dtApply" class="pri">套用今天</button><button id="dtReset">恢復自動輪替</button><button id="dtSkip">今天不上課（不輪替）</button></div>
+    <p class="mute" style="margin:14px 0 4px">接下來的值日生</p><div id="dtNext"></div>
+    <p class="mute" style="margin:14px 0 4px">輪替設定</p>
+    <div class="row" style="flex-wrap:wrap"><span class="mute">每日人數</span><input id="dtN" type="number" min="1" max="4"><span class="mute">起算日</span><input id="dtStart" type="date"><span class="mute">當天第一位座號</span><input id="dtFirst" type="number" min="1"></div>
+    <label style="display:flex;gap:8px;align-items:center;margin:10px 0"><input type="checkbox" id="dtOn" style="width:auto"> 首頁顯示值日生</label>
+    <div class="row" style="justify-content:flex-end"><button id="dtSave" class="pri">儲存設定</button><button id="dtClose">關閉</button></div>
+  </div></div>
   <!-- 老師密碼 -->
   <div class="dlg" id="pinDlg" style="z-index:100"><div class="box" style="width:420px;text-align:center">
     <div class="cap">TEACHER ONLY</div><h2 id="pinTitle" style="margin-bottom:4px"></h2><p class="mute" id="pinSub" style="margin-top:0"></p>
@@ -611,6 +629,7 @@ if(!S.links||(S.links.length===1&&S.links[0].u==='https://school.tc.edu.tw/'))S.
 /* 曾經預設過「臺中市校務系統」，沒被改過的清單把它拿掉 */
 if(S.links.length===5&&S.links[0].u==='https://cses.tc.edu.tw/app/index.php'&&S.links[4].u==='https://school.tc.edu.tw/')S.links.pop();
 if(S.pinKb===undefined)S.pinKb=!S.setup;
+if(!S.dutyStart){S.dutyStart=(d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'))(new Date());S.dutyFirst=1;S.dutyN=2;S.dutyOv={};S.dutySkip={};S.dutyOn=true}
 if(!S.cityv){if(S.city&&S.city.name==='金門')S.city={name:'台中市清水區',lat:24.269,lon:120.560};S.cityv=1}
 if(!S.pcv){S.pcoins=S.pcoins||{};if(S.coins>0){const n=S.n||1,b=Math.floor(S.coins/n),rest=S.coins-b*n;for(let i=1;i<=n;i++)S.pcoins[i]=(S.pcoins[i]||0)+b+(i<=rest?1:0)}S.coins=0;S.pcv=1}
 if(!S.econ){if(S.coinPer===1&&S.coinUp===5){S.coinPer=0;S.coinUp=0}S.econ=1}
@@ -723,7 +742,27 @@ function perHTML(){const st=periodStatus();return `<b class="pm${st.main.length>
 let lastMin='';
 function tick(){const d=new Date();
  const f=$('#flip');if(f)f.textContent=pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
- const k=pad(d.getHours())+pad(d.getMinutes());if(k!==lastMin){lastMin=k;renderWeek();if(typeof renderTop==='function')renderTop();const p=$('#per');if(p)p.innerHTML=perHTML();if(L==='sch')renderLeft()}}
+ const k=pad(d.getHours())+pad(d.getMinutes());if(k!==lastMin){lastMin=k;renderWeek();renderDuty();if(typeof renderTop==='function')renderTop();const p=$('#per');if(p)p.innerHTML=perHTML();if(L==='sch')renderLeft()}}
+/* 值日生：每天固定人數（預設 2 位），依座號輪替；只算週一到週五、扣掉「今天不上課」的日子 */
+const dutyPD=s=>{const m=String(s).split('-');return new Date(+m[0],+m[1]-1,+m[2])};
+const dutyWork=d=>{const w=d.getDay();return w>=1&&w<=5&&!(S.dutySkip&&S.dutySkip[ymd(d)])};
+function dutyIdx(ds){const a=dutyPD(S.dutyStart),b=dutyPD(ds);let idx=0;if(b>=a){for(let d=new Date(a);d<b;d.setDate(d.getDate()+1))if(dutyWork(d))idx++}else{for(let d=new Date(b);d<a;d.setDate(d.getDate()+1))if(dutyWork(d))idx--}return idx}
+function dutyFor(ds){if(S.dutyOv&&S.dutyOv[ds])return S.dutyOv[ds];const n=Math.max(1,S.n||30),N=Math.max(1,Math.min(4,S.dutyN||2,n)),f=Math.max(1,S.dutyFirst||1),idx=dutyIdx(ds),out=[];for(let k=0;k<N;k++)out.push((((f-1+idx*N+k)%n)+n)%n+1);return out}
+function dutyNextDay(from){const x=new Date(from);for(let i=0;i<20;i++){x.setDate(x.getDate()+1);if(dutyWork(x))return x}return x}
+function renderDuty(){const el=$('#duty');if(!el)return;if(S.dutyOn===false){el.style.display='none';return}el.style.display='';const d=new Date();let lab='今日',t=ymd(d);if(!dutyWork(d)){t=ymd(dutyNextDay(d));lab='下個上課日'}el.innerHTML=`🧹 ${lab}值日生　<b>${dutyFor(t).join(' 號、')} 號</b>`}
+const WKD=['日','一','二','三','四','五','六'];
+function openDuty(){const d=new Date(),ds=ymd(d),n=S.n||30,N=Math.max(1,Math.min(4,S.dutyN||2,n)),cur=dutyFor(ds);
+ $('#dtInfo').textContent=`輪替方式：每天 ${N} 位，依座號往後輪，輪到 ${n} 號後回到 1 號。只算週一到週五，週末和「不上課」的日子不輪替。`;
+ $('#dtToday').innerHTML=cur.map((s,i)=>`<input class="dtSeat" type="number" min="1" max="${n}" value="${s}" aria-label="第 ${i+1} 位">`).join('')+`<span class="mute">${S.dutyOv&&S.dutyOv[ds]?'（今天是手動調整）':dutyWork(d)?'（自動輪替）':'（今天不上課）'}</span>`;
+ $('#dtSkip').textContent=S.dutySkip&&S.dutySkip[ds]?'恢復今天上課':'今天不上課（不輪替）';
+ let x=new Date(d),h='',c=0;if(dutyWork(x)){h+=`<div class="dtday"><b>今天（${x.getMonth()+1}/${x.getDate()} 星期${WKD[x.getDay()]}）</b><span>${cur.join(' 號、')} 號</span></div>`;c++}
+ while(c<6){x=dutyNextDay(x);h+=`<div class="dtday"><span>${x.getMonth()+1}/${x.getDate()} 星期${WKD[x.getDay()]}</span><span>${dutyFor(ymd(x)).join(' 號、')} 號</span></div>`;c++}
+ $('#dtNext').innerHTML=h;$('#dtN').value=S.dutyN||2;$('#dtStart').value=S.dutyStart||ds;$('#dtFirst').value=S.dutyFirst||1;$('#dtOn').checked=S.dutyOn!==false;$('#dutyDlg').classList.add('on')}
+$('#duty').onclick=openDuty;$('#dtClose').onclick=()=>$('#dutyDlg').classList.remove('on');
+$('#dtApply').onclick=()=>{const n=S.n||30,v=$$('.dtSeat').map(i=>+i.value);if(v.some(s=>!(s>=1&&s<=n))||new Set(v).size!==v.length)return uiAlert(`座號要在 1 到 ${n} 之間，而且不能重複`);requireTeacher(()=>{S.dutyOv=S.dutyOv||{};S.dutyOv[today()]=v;save();renderDuty();openDuty()})};
+$('#dtReset').onclick=()=>requireTeacher(()=>{if(S.dutyOv)delete S.dutyOv[today()];save();renderDuty();openDuty()});
+$('#dtSkip').onclick=()=>requireTeacher(()=>{S.dutySkip=S.dutySkip||{};const k=today();if(S.dutySkip[k])delete S.dutySkip[k];else S.dutySkip[k]=true;save();renderDuty();openDuty()});
+$('#dtSave').onclick=()=>{const N=Math.max(1,Math.min(4,+$('#dtN').value||2)),f=Math.max(1,Math.min(S.n||30,+$('#dtFirst').value||1)),st=$('#dtStart').value;if(!st)return uiAlert('請選擇起算日');requireTeacher(()=>{S.dutyN=N;S.dutyFirst=f;S.dutyStart=st;S.dutyOn=$('#dtOn').checked;S.dutyOv={};save();renderDuty();openDuty()})};
 /* 開學第幾週：開學日當週為第 1 週，之後每逢星期一加一週 */
 function renderWeek(){const el=$('#wk');if(!el)return;const m=String(S.semStart||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);if(!m){el.style.display='none';return}
  const n=new Date(),a=new Date(+m[1],+m[2]-1,+m[3]),b=new Date(n.getFullYear(),n.getMonth(),n.getDate()),days=Math.round((b-a)/864e5),nm=S.semName?S.semName+'　·　':'';
@@ -731,7 +770,7 @@ function renderWeek(){const el=$('#wk');if(!el)return;const m=String(S.semStart|
 $('#semName').value=S.semName||'';$('#semIn').value=S.semStart||'';
 $('#semName').onchange=()=>{S.semName=$('#semName').value.trim();save();renderWeek()};
 $('#semIn').onchange=()=>{S.semStart=$('#semIn').value;save();renderWeek()};
-renderWeek();
+renderWeek();renderDuty();
 setInterval(tick,1000);
 
 /* 天氣 */
@@ -752,7 +791,7 @@ function stats(){const k=today(),dn=S.done[k]||{};let pairs=0;const per={};
  const full=Object.values(per).filter(v=>v>=S.tasks.length&&S.tasks.length).length;
  let tw=S.foodBase||0;for(let i=1;i<=S.n;i++)tw+=S.water[i]||0;
  return{pairs,total:S.n*S.tasks.length,full,tw}}
-function renderTop(){const s=stats();
+function renderTop(){if(typeof renderDuty==='function')renderDuty();const s=stats();
 $('#waterN').textContent=(S.feedDay&&S.feedDay[today()])||0;$('#gNow').textContent=s.tw}
 
 /* 左側 */
