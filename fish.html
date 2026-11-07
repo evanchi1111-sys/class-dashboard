@@ -886,7 +886,8 @@ function renderCenter(){$$('#ctabs button').forEach(b=>b.classList.toggle('on',b
   $('#pickReset').onclick=()=>{S.picked=[];save();renderCenter()}}}
 function stopT(){clearInterval(tTimer);tTimer=null}
 $('#ctabs').onclick=e=>{const b=e.target.closest('button');if(b){C=b.dataset.c;renderCenter()}};
-function bindSel(){const s=$('#taskSel');if(s)s.onchange=()=>{curTask=s.value;renderAll()}}
+/* 中間「任務」分頁與全頁「任務打卡」可能同時存在兩個選單，兩個都要綁 */
+function bindSel(){document.querySelectorAll('#taskSel').forEach(s=>{s.onchange=()=>{curTask=s.value;renderAll()}})}
 
 /* 打卡 */
 /* 任務：固定的每日任務（S.tasks）＋ 聯絡簿裡設為任務的項目（有編號 id、獎勵飼料數 reward） */
