@@ -58,6 +58,8 @@ input:focus,textarea:focus{border-color:var(--acc)}
 .ntitem{display:flex;gap:12px;align-items:flex-start;font-size:24px;line-height:1.5;padding:12px 16px;border-radius:14px;background:var(--cell);margin-bottom:8px}
 .ntitem.imp{background:rgba(160,60,30,.35);border:1px solid #ff9b6b}.ntitem .nt{flex:1}.ntitem .nd{font-size:15px;color:var(--mute);white-space:nowrap}
 .ner{display:grid;grid-template-columns:1fr 170px 76px 46px;gap:8px;align-items:center;margin-bottom:8px}.ner input[type=checkbox]{width:auto}
+#lockp{position:absolute;left:930px;top:32px;display:none;align-items:center;gap:8px;padding:3px 4px 3px 14px;border-radius:99px;background:rgba(70,48,8,.78);border:1px solid var(--gold);font-size:17px;white-space:nowrap}
+#lockp b{color:var(--gold);font-variant-numeric:tabular-nums}#lockp button{font-size:16px;padding:6px 14px;min-height:0;border-radius:99px}
 #duty{position:absolute;left:112px;top:38px;padding:8px 24px;border-radius:99px;background:rgba(10,38,50,.55);border:1px solid var(--line);font-size:24px;font-weight:600;cursor:pointer;text-shadow:0 1px 3px rgba(8,40,80,.7)}
 #duty b{color:var(--gold)}
 #dutyDlg .box{font-size:19px;padding:22px 28px}#dutyDlg h2{font-size:32px}#dutyDlg .mute{font-size:17px}
@@ -251,6 +253,7 @@ button.pri{background:var(--acc);color:#04231a;font-weight:700}
   <div id="bg"></div><div id="tone"></div>
 
   <div id="topc" class="ui"><small>CLASS DASHBOARD</small><h1>班級儀表板</h1><div id="wk"></div></div>
+  <div id="lockp" class="ui"><span>🔓 老師模式 <b id="lockT"></b></span><button id="lockBtn">🔒 立即鎖定</button></div>
   <div id="duty" class="ui" title="點一下查看或調整值日生"></div>
   <div id="tl" class="ui">
     <button class="sq" id="eye" title="隱藏介面">👁</button>
@@ -784,6 +787,13 @@ $('#neAdd').onclick=()=>{$('#neRows').insertAdjacentHTML('beforeend',noteRow());
 $('#neRows').onclick=e=>{const b=e.target.closest('.neX');if(b)b.closest('.ner').remove()};
 $('#neCancel').onclick=()=>{$('#noteEdDlg').classList.remove('on');openNotes()};
 $('#neSave').onclick=()=>{S.notices=$$('#neRows .ner').map(r=>({t:r.querySelector('.neT').value.trim(),until:r.querySelector('.neD').value,imp:r.querySelector('.neI').checked})).filter(n=>n.t);save();noteI=0;renderNotes();$('#noteEdDlg').classList.remove('on');openNotes()};
+/* 老師登入：固定 3 分鐘後自動鎖定（操作不會延長），也可按「立即鎖定」；放飛／賣出、清空進度、匯入備份、變更密碼每次都要輸入密碼 */
+const UNLOCK_MS=18e4;
+function lockNow(){unlockUntil=0;drawLock()}
+function drawLock(){const el=$('#lockp');if(!el)return;const left=unlockUntil-Date.now();if(left<=0){el.style.display='none';return}const s=Math.ceil(left/1000);el.style.display='flex';$('#lockT').textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0')}
+setInterval(drawLock,1000);
+$('#lockBtn').onclick=lockNow;
+document.addEventListener('visibilitychange',()=>{if(document.hidden)lockNow()});
 /* 值日生：每天固定人數（預設 2 位），依座號輪替；只算週一到週五、扣掉「今天不上課」的日子 */
 const dutyPD=s=>{const m=String(s).split('-');return new Date(+m[0],+m[1]-1,+m[2])};
 const dutyWork=d=>{const w=d.getDay();return w>=1&&w<=5&&!(S.dutySkip&&S.dutySkip[ymd(d)])};
@@ -974,10 +984,10 @@ S.coll.forEach((c,ci)=>{if(c.sold)return;const r=rng(ci*131+9),sp=SP[c.sp],px=11
  fs.forEach(pick);
  const drop=(x,y)=>{if(pellets.length>=16)return;const el=document.createElement('i');el.className='pel';fx.appendChild(el);pellets.push({x,y,vy:34+Math.random()*16,ph:Math.random()*6,life:7,el,eaten:false})};
  const burst=(x,y,n=6)=>{for(let k=0;k<n;k++){const b=document.createElement('i');b.className='spark';b.style.cssText=`left:${x}px;top:${y}px;--dx:${(Math.random()-.5)*70}px;--dy:${-20-Math.random()*50}px;background:radial-gradient(circle,#fff,rgba(190,240,255,0) 70%)`;fx.appendChild(b);setTimeout(()=>b.remove(),1000)}};
- $('#sellAllBtn').onclick=()=>requireTeacher(sellAllTank);
+ $('#sellAllBtn').onclick=()=>forcePin(sellAllTank,'賣出需要老師密碼');
  $('#feedBtn').onclick=()=>{for(let k=0;k<9;k++)setTimeout(()=>drop(60+Math.random()*(W-120),-6),k*90)};
  tank.onclick=e=>{const sb=e.target.closest('[data-sell]');
-  if(sb){const ci=+sb.dataset.sell;requireTeacher(()=>{const price=sellOne(ci);if(!price)return;const k=fs.findIndex(q=>q.coll===ci);if(k>=0){const f=fs[k];burst(f.x+f.px/2,f.y+f.px*.3,10);f.el.remove();fs.splice(k,1)}renderTop()});return}
+  if(sb){const ci=+sb.dataset.sell;forcePin(()=>{const price=sellOne(ci);if(!price)return;const k=fs.findIndex(q=>q.coll===ci);if(k>=0){const f=fs[k];burst(f.x+f.px/2,f.y+f.px*.3,10);f.el.remove();fs.splice(k,1)}renderTop()},'賣出需要老師密碼');return}
   const fe=e.target.closest('.fsh'),r=tank.getBoundingClientRect(),x=(e.clientX-r.left)/SCl,y=(e.clientY-r.top)/SCl;
   if(fe){const f=fs.find(q=>q.el===fe);if(!f)return;fe.querySelectorAll('.say').forEach(n=>n.remove());const t=TIERS[f.sp.tier],s=document.createElement('div');s.className='say';
    const keep=f.coll!==undefined;
@@ -1403,7 +1413,7 @@ let pin={mode:'',buf:'',first:'',rec:'',cb:null},unlockUntil=0;
 async function sha(s){try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('cd|'+s));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}catch(e){let h=5381;for(const c of 'cd|'+s)h=((h<<5)+h+c.charCodeAt(0))>>>0;return 'x'+h}}
 /* 每次都要輸入密碼（不使用 10 分鐘內免輸入），也不會延長免輸入時間；用於兌換獎勵 */
 function forcePin(cb,sub){pin.once=true;pin.sub=sub||'';openPin(S.pin?'verify':'set',cb)}
-function requireTeacher(cb){if(Date.now()<unlockUntil){unlockUntil=Date.now()+6e5;cb();return}openPin(S.pin?'verify':'set',cb)}
+function requireTeacher(cb){if(Date.now()<unlockUntil){cb();return}openPin(S.pin?'verify':'set',cb)}
 function openPin(mode,cb){try{document.activeElement&&document.activeElement.blur()}catch(e){}pin.mode=mode;pin.buf='';pin.first='';if(cb)pin.cb=cb;$('#pinMsg').textContent='';drawPin();$('#pinDlg').classList.add('on')}
 function drawPin(){const T={verify:['請輸入老師密碼','進入教師功能需要密碼'],set:['設定老師密碼','請輸入 4～8 位數字'],set2:['再輸入一次','確認剛才設定的密碼'],recover:['輸入備用碼','輸入設定密碼時顯示的 8 位備用碼'],code:['請抄下備用碼','忘記密碼時，可用它重設密碼。預設不顯示，按下按鈕才會顯示 15 秒']}[pin.mode],code=pin.mode==='code';
  $('#pinTitle').textContent=T[0];$('#pinSub').textContent=(pin.sub&&pin.mode==='verify')?pin.sub:T[1];
@@ -1411,7 +1421,7 @@ function drawPin(){const T={verify:['請輸入老師密碼','進入教師功能�
  $('#pinPad').style.display=(code||S.pinKb)?'none':'';if(S.pinKb&&!code)$('#pinSub').textContent+='（請用電腦鍵盤輸入數字，按 Enter 確認）';$('#pinDone').style.display=code?'':'none';$('#pinForgot').style.display=pin.mode==='verify'&&S.rec?'':'none'}
 $('#pinPad').innerHTML=['1','2','3','4','5','6','7','8','9','⌫','0','✓'].map(k=>`<button data-pk="${k}" style="padding:16px;font-size:24px">${k}</button>`).join('');
 function closePin(){$('#pinDlg').classList.remove('on');pin.cb=null;pin.once=false;pin.sub='';pin.show=false}
-function unlock(){if(!pin.once)unlockUntil=Date.now()+6e5;const cb=pin.cb;closePin();if(cb)cb()}
+function unlock(){if(!pin.once)unlockUntil=Date.now()+UNLOCK_MS;const cb=pin.cb;closePin();drawLock();if(cb)cb()}
 async function pinKey(k){const m=$('#pinMsg');m.textContent='';
  if(k==='⌫'){pin.buf=pin.buf.slice(0,-1);drawPin();return}
  if(k!=='✓'){if(pin.buf.length<8)pin.buf+=k;drawPin();return}
@@ -1428,7 +1438,7 @@ $('#pinDone').onclick=()=>{clearTimeout(pinHide);pin.show=false;pin.rec='';unloc
 $('#pinCancel').onclick=closePin;
 $('#pinForgot').onclick=()=>openPin('recover');
 document.addEventListener('keydown',e=>{if(!$('#pinDlg').classList.contains('on')||pin.mode==='code')return;if(e.key==='Enter'||e.key==='Backspace'||/^\d$/.test(e.key))e.preventDefault();if(/^\d$/.test(e.key))pinKey(e.key);else if(e.key==='Backspace')pinKey('⌫');else if(e.key==='Enter')pinKey('✓');else if(e.key==='Escape')closePin()});
-$('#chgPin').onclick=()=>{$('#dlg').classList.remove('on');openPin('set',()=>{})};
+$('#chgPin').onclick=()=>{$('#dlg').classList.remove('on');forcePin(()=>openPin('set',()=>{}),'變更密碼需要先輸入目前的密碼')};
 let schWork={d:''},schCur='d';
 $('#schDay').onchange=()=>{schWork[schCur]=$('#schTx').value;schCur=$('#schDay').value;$('#schTx').value=schWork[schCur]||''};
 $('#swTheme').onclick=()=>{try{localStorage.removeItem('classdashboard.theme')}catch(e){}location.href='index.html?choose=1'};
@@ -1446,7 +1456,7 @@ $('#saveDlg').onclick=()=>{
  save();$('#dlg').classList.remove('on');renderAll();renderLeft()};
 $('#nSet').onclick=()=>{};
 $('#cityBtn').onclick=async()=>{const q=$('#cityIn').value.trim();if(!q)return;try{const r=await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=1&language=zh`);const j=await r.json();if(!j.results)return uiAlert('找不到這個地點');const p=j.results[0];S.city={name:p.name,lat:p.latitude,lon:p.longitude};save();$('#cityIn').value='';weather();uiAlert('已切換到 '+p.name)}catch(e){uiAlert('查詢失敗（需要網路）')}};
-$('#resetGame').onclick=()=>uiConfirm('確定清空所有水族箱進度與每位同學的金幣？\n此動作無法復原。',()=>{S.fish={};S.water={};S.done={};S.feedDay={};S.pcoins={};S.log=[];S.coll=[];S.foodBase=0;save();renderAll()},'清空');
+$('#resetGame').onclick=()=>forcePin(()=>uiConfirm('確定清空所有水族箱進度與每位同學的金幣？\n此動作無法復原。',()=>{S.fish={};S.water={};S.done={};S.feedDay={};S.pcoins={};S.log=[];S.coll=[];S.foodBase=0;save();renderAll()},'清空'),'清空進度需要老師密碼');
 
 /* 版面：三個面板固定位置，可放大到整個畫面 */
 const PN={left:{w:360,h:660,x:64,y:116,et:0},center:{w:712,h:592,x:444,y:184,et:58},right:{w:360,h:660,x:1176,y:116,et:0}};
@@ -1515,7 +1525,7 @@ async function drawBackup(){const el=$('#bkStatus');if(!el)return;let per=false;
 $('#bkExport').onclick=exportBackup;
 $('#bkImport').onclick=()=>$('#bkFile').click();
 $('#setupRestore').onclick=()=>$('#bkFile').click();
-$('#bkFile').onchange=e=>{const f=e.target.files[0];if(f)importBackup(f);e.target.value=''};
+$('#bkFile').onchange=e=>{const f=e.target.files[0];if(f){if(S.pin)forcePin(()=>importBackup(f),'匯入備份會取代所有資料，需要老師密碼');else importBackup(f)}e.target.value=''};
 $('#bkLink').onclick=linkFile;
 restoreHandle();
 
