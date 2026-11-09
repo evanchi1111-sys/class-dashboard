@@ -134,7 +134,25 @@ button.pri{background:var(--acc);color:#04231a;font-weight:700}
 #tkFx{pointer-events:none}
 .fsh{position:absolute;left:0;top:0;will-change:transform;cursor:pointer}
 .fb{transition:transform .25s;transform-origin:50% 50%}.fb svg{display:block}
-.fsh .tag,.egg .tag{position:absolute;left:50%;bottom:-8px;transform:translateX(-50%);font-size:11px;color:#fff;background:rgba(0,0,0,.4);border-radius:99px;padding:0 7px;pointer-events:none}
+.fsh .tag,.egg .tag{position:absolute;left:50%;bottom:-14px;transform:translateX(-50%);font-size:20px;font-weight:700;color:#fff;background:rgba(0,0,0,.66);border:1px solid rgba(255,255,255,.35);border-radius:99px;padding:0 10px;line-height:1.35;pointer-events:none;white-space:nowrap}
+.fsh.hl{z-index:20;filter:drop-shadow(0 0 10px #ffe066) drop-shadow(0 0 26px #ffb703)}
+.fsh.hl .fb svg{transform:scale(1.4);transform-origin:50% 60%}.fsh .fb svg{transition:transform .3s}
+.hlarrow{position:absolute;left:50%;top:-34px;margin-left:-14px;font-size:28px;color:#ffe066;text-shadow:0 0 8px #000;animation:hlbob .6s ease-in-out infinite alternate;pointer-events:none}
+@keyframes hlbob{from{transform:translateY(-6px)}to{transform:translateY(6px)}}
+.egg.hl{z-index:20;filter:drop-shadow(0 0 10px #ffe066) drop-shadow(0 0 26px #ffb703)}
+.tank.finding .fsh:not(.hl),.tank.finding .egg:not(.hl){opacity:.28;transition:opacity .3s}
+#findPad{position:absolute;inset:0;background:rgba(0,10,30,.6);display:flex;align-items:center;justify-content:center;z-index:30;cursor:default}
+.fpBox{background:#0f2f3c;border:1px solid var(--line);border-radius:22px;padding:18px 22px;max-width:94%}
+.fpT{font-size:26px;font-weight:700;text-align:center;margin-bottom:12px}
+.fpG{display:grid;grid-template-columns:repeat(10,64px);gap:8px;justify-content:center}.fpG button{font-size:26px;padding:0;height:56px;min-height:0}
+.fpX{display:block;margin:14px auto 0;font-size:20px;padding:10px 30px}
+.mewrap{display:grid;grid-template-columns:350px 1fr;gap:22px;flex:1;min-height:0}
+.megrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;align-content:start;overflow:auto;padding-right:4px}
+.megrid button{font-size:24px;padding:0;height:58px;min-height:0}.megrid button.on{background:var(--acc);color:#04231a;font-weight:700}
+.mecard{overflow:auto;border-radius:20px;background:rgba(0,0,0,.22);border:1px solid var(--line);padding:22px 28px;display:grid;grid-template-columns:300px 1fr;gap:26px;align-content:start}
+.mecard .mebig{font-size:46px;font-weight:800}.mebar{height:22px;border-radius:99px;background:rgba(255,255,255,.14);overflow:hidden;margin:8px 0 6px}.mebar i{display:block;height:100%;background:linear-gradient(90deg,#3fcf9a,#ffe066);border-radius:99px}
+.metask{display:flex;gap:10px;align-items:center;font-size:21px;padding:5px 0}.metask b{width:28px;text-align:center}.metask.ok{color:#7ff0c0}.metask.no{color:var(--mute)}
+
 .egg{position:absolute;transform-origin:50% 100%;animation:eggw 3s ease-in-out infinite alternate}
 .egg svg{display:block}
 @keyframes eggw{from{transform:rotate(-4deg) scale(1)}to{transform:rotate(4deg) scale(1.07)}}
@@ -291,7 +309,7 @@ button.pri{background:var(--acc);color:#04231a;font-weight:700}
   <div id="examView"></div><div id="examPill" class="pill ui"></div>
 
   <nav id="dock" class="ui">
-    <button data-v="home" class="on"><span>🏠</span>首頁</button><button data-v="check"><span>✅</span>任務打卡</button><button data-v="garden"><span>🐠</span>全班魚群</button>
+    <button data-v="home" class="on"><span>🏠</span>首頁</button><button data-v="check"><span>✅</span>任務打卡</button><button data-v="garden"><span>🐠</span>全班魚群</button><button data-v="me"><span>🪪</span>我的魚</button>
     <button data-v="guide"><span>📖</span>魚種圖鑑</button><button data-v="shop"><span>🎁</span>獎勵商店</button><button data-v="stat"><span>📊</span>班級統計</button><button id="setBtn"><span>⚙</span>教師控制台</button>
   </nav>
   <button id="lk" class="glass ui" title="常用連結">🔗</button><div id="lkPop" class="glass ui"></div>
@@ -794,6 +812,26 @@ function drawLock(){const el=$('#lockp');if(!el)return;const left=unlockUntil-Da
 setInterval(drawLock,1000);
 $('#lockBtn').onclick=lockNow;
 document.addEventListener('visibilitychange',()=>{if(document.hidden)lockNow()});
+/* 找我的魚／我的魚卡片：學生輸入自己的座號，在水族箱裡標出來，並能看自己的成長進度 */
+let ME=0,FIND=0;
+function meView(v){const n=S.n||30,i=ME;ensureFish();
+ let seats='';for(let k=1;k<=n;k++)seats+=`<button data-me="${k}" class="${k===i?'on':''}">${k}</button>`;
+ let card='<div class="mute" style="grid-column:1/-1;font-size:28px;text-align:center;margin-top:140px">← 先點你的座號</div>';
+ if(i){const w=S.water[i]||0,st=stageOf(w),sid=S.fish[i],sp=sid!=null?SP[sid]:null,egg=st===0||!sp,th=S.th,nxt=th[Math.min(4,st+1)],base=th[st],pct=Math.max(0,Math.min(100,Math.round((w-base)/Math.max(1,nxt-base)*100))),need=Math.max(0,nxt-w),D=today(),dn=S.done[D]||{},t=sp?TIERS[sp.tier]:null;
+  const tasks=S.tasks.map((x,k)=>[x,(dn[String(k)]||[]).includes(i)]).concat(cbTasks(D).map(x=>[x.name,(dn[x.key]||[]).includes(i)]));
+  const grads=S.coll.filter(c=>c.from===i).map(c=>`${esc(SP[c.sp].name)}${c.sold?'（已賣出）':'（在水族箱）'}`);
+  card=`<div style="text-align:center"><div style="height:230px;display:flex;align-items:center;justify-content:center">${egg?eggSVG(230):fishSVG(sp.id,270)}</div><div class="mebig">${i} 號</div>
+   ${egg?`<div style="font-size:24px;margin-top:6px">還是魚卵</div>`:`<div style="font-size:30px;margin-top:6px;color:${t.c};font-weight:700">${esc(sp.name)}</div><div class="mute" style="font-size:20px">${t.n}　·　${STAGES[st].n}</div>`}
+   <button id="meFind" class="pri" style="font-size:20px;padding:12px 22px;margin-top:14px">🔍 在水族箱找我的魚</button>${egg?'':`<button id="meSp" data-sp="${sp.id}" style="font-size:18px;padding:10px 18px;margin:10px 0 0 8px">📖 看介紹</button>`}</div>
+  <div><div class="mute" style="font-size:18px">成長進度</div><div style="font-size:24px">${STAGES[st].n} → ${STAGES[Math.min(4,st+1)].n}　<b>${w}</b> / ${nxt} 份飼料</div><div class="mebar"><i style="width:${pct}%"></i></div><div class="mute" style="font-size:19px">${st>=3?'再 '+need+' 份飼料就畢業，進入全班水族箱！':'還差 '+need+' 份飼料升級'}</div>
+   <div class="mute" style="font-size:18px;margin-top:16px">我的金幣</div><div style="font-size:34px;font-weight:700;color:var(--gold)">🪙 ${pc(i)}</div>
+   <div class="mute" style="font-size:18px;margin-top:16px">今天的任務</div>${tasks.map(x=>`<div class="metask ${x[1]?'ok':'no'}"><b>${x[1]?'✔':'○'}</b>${esc(x[0])}</div>`).join('')||'<div class="mute">今天沒有任務</div>'}
+   <div class="mute" style="font-size:18px;margin-top:16px">畢業過的魚</div><div style="font-size:21px;line-height:1.7">${grads.join('、')||'還沒有'}</div></div>`}
+ v.innerHTML=`<h2>🪪 我的魚 <small class="mute" style="font-size:15px">　點你的座號，看自己的魚和成長進度</small></h2><div class="mewrap"><div class="megrid">${seats}</div><div class="mecard">${card}</div></div>`}
+document.addEventListener('click',e=>{const m=e.target.closest('.megrid [data-me]');if(m){ME=+m.dataset.me;renderView();return}
+ const g=e.target.closest('[data-go="me"]');if(g){ME=+g.dataset.me;V='me';renderView();return}
+ if(e.target.closest('#meFind')){FIND=ME;V='garden';renderView();return}
+ const sp=e.target.closest('#meSp');if(sp)showSp(+sp.dataset.sp)});
 /* 值日生：每天固定人數（預設 2 位），依座號輪替；只算週一到週五、扣掉「今天不上課」的日子 */
 const dutyPD=s=>{const m=String(s).split('-');return new Date(+m[0],+m[1]-1,+m[2])};
 const dutyWork=d=>{const w=d.getDay();return w>=1&&w<=5&&!(S.dutySkip&&S.dutySkip[ymd(d)])};
@@ -966,13 +1004,13 @@ function tankDecor(){
  <path d="M0 500Q200 478 420 498T820 490T1280 496L1280 560L0 560Z" fill="url(#sandg)"/>${peb}</svg>`}
 function startTank(v){
  const hatched=Object.keys(S.fish).filter(i=>stageOf(S.water[i]||0)>0&&i<=S.n).length,tankN=S.coll.filter(c=>!c.sold).length;
- v.innerHTML=`<h2>🐠 全班魚群 <small class="mute" style="font-size:15px">　${hatched} 隻培育中　·　水族箱收藏 ${tankN} 條　·　點水面投飼料，點魚看名字</small><span style="float:right;display:flex;gap:8px"><button id="sellAllBtn" style="font-size:15px">🪙 全部賣出（${tankN} 條）</button><button id="feedBtn" class="pri" style="font-size:15px">🍤 撒飼料</button></span></h2>
+ v.innerHTML=`<h2>🐠 全班魚群 <small class="mute" style="font-size:15px">　${hatched} 隻培育中　·　水族箱收藏 ${tankN} 條　·　點水面投飼料，點魚看名字</small><span style="float:right;display:flex;gap:8px"><button id="sellAllBtn" style="font-size:15px">🪙 全部賣出（${tankN} 條）</button><button id="findBtn" class="pri" style="font-size:15px">🔍 找我的魚</button><button id="feedBtn" class="pri" style="font-size:15px">🍤 撒飼料</button></span></h2>
  <div class="tank" id="tank"><div class="caus"></div><div class="rays"></div><div class="surf"></div>${tankDecor()}<div id="tkFish"></div><div id="tkFx"></div></div>`;
  const tank=$('#tank'),layer=$('#tkFish'),fx=$('#tkFx'),W=tank.clientWidth||1280,H=tank.clientHeight||520,floor=H-72;
  for(let k=0;k<(LITE?6:18);k++){const b=document.createElement('i'),s=5+Math.random()*14;b.className='bubbleT';b.style.cssText=`left:${Math.random()*W}px;width:${s}px;height:${s}px;animation-duration:${9+Math.random()*10}s;animation-delay:-${Math.random()*14}s`;fx.appendChild(b)}
- const fs=[],pellets=[];
+ const fs=[],pellets=[],eggEl={};
  for(let i=1;i<=S.n;i++){const st=stageOf(S.water[i]||0),r=rng(i*97+3);
-  if(st===0||S.fish[i]==null){const e=document.createElement('div');e.className='egg';e.style.cssText=`left:${40+r()*(W-140)}px;bottom:${10+r()*44}px;animation-delay:-${r()*3}s`;e.innerHTML=eggSVG(50)+`<span class="tag">${i}</span>`;layer.appendChild(e);continue}
+  if(st===0||S.fish[i]==null){const e=document.createElement('div');e.className='egg';e.style.cssText=`left:${40+r()*(W-140)}px;bottom:${10+r()*44}px;animation-delay:-${r()*3}s`;e.innerHTML=eggSVG(50)+`<span class="tag">${i}</span>`;layer.appendChild(e);eggEl[i]=e;continue}
   const sp=SP[S.fish[i]],px=64+SCALE[st]*64,el=document.createElement('div');el.className='fsh tier'+sp.tier;
   el.innerHTML=`<div class="fb">${fishSVG(sp.id,px,{w:.28+r()*.3})}</div><span class="tag">${i}</span>`;layer.appendChild(el);
   fs.push({i,sp,st,px,el,fb:el.firstChild,x:r()*(W-px),y:30+r()*(floor-px*.8-40),vx:(r()-.5)*60,vy:0,dir:r()>.5?1:-1,spd:(105-SCALE[st]*40)*(.8+r()*.5),ph:r()*6.28,tx:0,ty:0,next:0,boost:0,munch:0})}
@@ -984,12 +1022,25 @@ S.coll.forEach((c,ci)=>{if(c.sold)return;const r=rng(ci*131+9),sp=SP[c.sp],px=11
  fs.forEach(pick);
  const drop=(x,y)=>{if(pellets.length>=16)return;const el=document.createElement('i');el.className='pel';fx.appendChild(el);pellets.push({x,y,vy:34+Math.random()*16,ph:Math.random()*6,life:7,el,eaten:false})};
  const burst=(x,y,n=6)=>{for(let k=0;k<n;k++){const b=document.createElement('i');b.className='spark';b.style.cssText=`left:${x}px;top:${y}px;--dx:${(Math.random()-.5)*70}px;--dy:${-20-Math.random()*50}px;background:radial-gradient(circle,#fff,rgba(190,240,255,0) 70%)`;fx.appendChild(b);setTimeout(()=>b.remove(),1000)}};
+  const findSeat=n=>{clearTimeout(window.__fndT);$$('.fsh.hl,.egg.hl').forEach(x=>x.classList.remove('hl'));$$('.hlarrow,.say').forEach(x=>x.remove());
+  const f=fs.find(q=>q.i===n);let el,msg;
+  if(f){el=f.el;f.y=Math.max(f.y,70);f.hlT=tt+7;f.vx=0;f.vy=0;const t=TIERS[f.sp.tier];msg=`${n} 號 · <b style="color:${t.c}">${esc(f.sp.name)}</b> · ${STAGES[f.st].n}${pc(n)?` · 🪙${pc(n)}`:''}`}
+  else if(eggEl[n]){el=eggEl[n];msg=`${n} 號 · 還是魚卵，繼續完成任務就會孵化`}
+  else{tank.classList.remove('finding');return uiAlert(`找不到 ${n} 號的魚`)}
+  tank.classList.add('finding');el.classList.add('hl');
+  el.insertAdjacentHTML('beforeend','<span class="hlarrow">▼</span>');
+  const s=document.createElement('div');s.className='say';s.innerHTML=msg+`　<button class="mini-sell" data-go="me" data-me="${n}">📇 我的卡片</button>`;s.style.animation='sayin .25s,sayout .45s 6.4s forwards';el.appendChild(s);
+  burst(f?f.x+f.px/2:parseFloat(el.style.left)||0,f?f.y+f.px*.3:0,8);
+  window.__fndT=setTimeout(()=>{tank.classList.remove('finding');el.classList.remove('hl');el.querySelectorAll('.hlarrow,.say').forEach(x=>x.remove());if(f)f.hlT=0},7000)};
+ $('#findBtn').onclick=()=>{const pad=document.createElement('div');pad.id='findPad';pad.innerHTML=`<div class="fpBox"><div class="fpT">點你的座號</div><div class="fpG">${Array.from({length:S.n},(_,i)=>`<button data-fs="${i+1}">${i+1}</button>`).join('')}</div><button class="fpX">取消</button></div>`;tank.appendChild(pad);
+  pad.onclick=ev=>{ev.stopPropagation();const b=ev.target.closest('[data-fs]');if(b){pad.remove();findSeat(+b.dataset.fs)}else if(ev.target.closest('.fpX')||ev.target===pad)pad.remove()}};
+ if(FIND){const n=FIND;FIND=0;setTimeout(()=>findSeat(n),500)}
  $('#sellAllBtn').onclick=()=>forcePin(sellAllTank,'賣出需要老師密碼');
  $('#feedBtn').onclick=()=>{for(let k=0;k<9;k++)setTimeout(()=>drop(60+Math.random()*(W-120),-6),k*90)};
- tank.onclick=e=>{const sb=e.target.closest('[data-sell]');
+ tank.onclick=e=>{if(e.target.closest('[data-go]'))return;const sb=e.target.closest('[data-sell]');
   if(sb){const ci=+sb.dataset.sell;forcePin(()=>{const price=sellOne(ci);if(!price)return;const k=fs.findIndex(q=>q.coll===ci);if(k>=0){const f=fs[k];burst(f.x+f.px/2,f.y+f.px*.3,10);f.el.remove();fs.splice(k,1)}renderTop()},'賣出需要老師密碼');return}
   const fe=e.target.closest('.fsh'),r=tank.getBoundingClientRect(),x=(e.clientX-r.left)/SCl,y=(e.clientY-r.top)/SCl;
-  if(fe){const f=fs.find(q=>q.el===fe);if(!f)return;fe.querySelectorAll('.say').forEach(n=>n.remove());const t=TIERS[f.sp.tier],s=document.createElement('div');s.className='say';
+  if(fe){const f=fs.find(q=>q.el===fe);if(!f)return;if(f.coll===undefined){findSeat(f.i);return}fe.querySelectorAll('.say').forEach(n=>n.remove());const t=TIERS[f.sp.tier],s=document.createElement('div');s.className='say';
    const keep=f.coll!==undefined;
    s.innerHTML=keep?`<b style="color:${t.c}">${esc(f.sp.name)}</b> · ${t.n}　<button class="mini-sell" data-sell="${f.coll}">賣出 +${S.sellPrice[f.sp.tier]} 🪙 給 ${S.coll[f.coll].from||'?'} 號</button>`:`${f.i} 號 · <b style="color:${t.c}">${esc(f.sp.name)}</b> · ${t.n} · ${STAGES[f.st].n}${pc(f.i)?` · 🪙${pc(f.i)}`:''}`;
    if(keep)s.style.animation='sayin .25s,sayout .45s 6.5s forwards';fe.appendChild(s);setTimeout(()=>s.remove(),keep?7000:2900);
@@ -999,7 +1050,7 @@ S.coll.forEach((c,ci)=>{if(c.sold)return;const r=rng(ci*131+9),sp=SP[c.sp],px=11
  const loop=now=>{if(LITE&&now-last<32){tankRAF=requestAnimationFrame(loop);return}const dt=Math.min(.05,(now-last)/1000);last=now;tt+=dt;
   for(let k=pellets.length-1;k>=0;k--){const p=pellets[k];if(p.y<floor+22){p.y+=p.vy*dt;p.x+=Math.sin(tt*2+p.ph)*10*dt}else p.life-=dt;p.el.style.transform=`translate(${p.x}px,${p.y}px)`;p.el.style.opacity=Math.min(1,p.life);
    if(p.eaten||p.life<=0){p.el.remove();pellets.splice(k,1)}}
-  for(const f of fs){let tgt=null,bd=1e12;const mx=f.x+(f.dir>0?f.px*.88:f.px*.12),my=f.y+f.px*.36;
+  for(const f of fs){if(f.hlT>tt){f.vx=0;f.vy=0;f.boost=0;f.tx=f.x;f.ty=f.y;f.next=tt+1}let tgt=null,bd=1e12;const mx=f.x+(f.dir>0?f.px*.88:f.px*.12),my=f.y+f.px*.36;
    for(const p of pellets){if(p.eaten||p.y<0)continue;const d=(p.x-mx)**2+(p.y-my)**2;if(d<bd&&d<460*460){bd=d;tgt=p}}
    let tx=f.tx,ty=f.ty,sp=f.spd;
    if(tgt){tx=tgt.x-f.px*.5;ty=tgt.y-f.px*.36;sp*=2;if(bd<20*20){tgt.eaten=true;f.munch=.3;burst(tgt.x,tgt.y,3)}}
@@ -1236,6 +1287,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#ckOpen'))requireTeac
  if(e.target.closest('#ckClose'))$('#ckView').classList.remove('on');});
 function renderView(){if(tankRAF){cancelAnimationFrame(tankRAF);tankRAF=0}$$('#dock button[data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v===V));const v=$('#view');v.classList.toggle('on',V!=='home');$('#stage').classList.toggle('inview',V!=='home');if(V==='home')return;
  if(V==='check')v.innerHTML=`<h2>✅ 任務打卡</h2><div class="row" style="margin-bottom:14px"><span class="mute">今日任務</span>${taskSel()}<span class="mute">點座號完成，再點一次取消</span></div><div class="grid scroll" style="grid-template-columns:repeat(auto-fill,minmax(110px,1fr));align-content:start">${checkGrid(88)}</div>`;
+ else if(V==='me'){meView(v)}
  else if(V==='garden'){ensureFish();startTank(v)}
   else if(V==='shop')v.innerHTML=shopHTML();
  else if(V==='guide'){ensureFish();const found=foundSet(),cnt=TIERS.map((_,t)=>[SP.filter(s=>s.tier===t).length,SP.filter(s=>s.tier===t&&found.has(s.id)).length]);
