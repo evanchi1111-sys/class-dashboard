@@ -164,6 +164,9 @@ button.pri{background:var(--acc);color:#04231a;font-weight:700}
 .fpT{font-size:26px;font-weight:700;text-align:center;margin-bottom:12px}
 .fpG{display:grid;grid-template-columns:repeat(10,64px);gap:8px;justify-content:center}.fpG button{font-size:26px;padding:0;height:56px;min-height:0}
 .fpX{display:block;margin:14px auto 0;font-size:20px;padding:10px 30px}
+.lgrow{display:flex;gap:12px;align-items:center;font-size:19px;padding:5px 0;border-bottom:1px solid var(--line)}.lgrow span:nth-child(2){flex:1}.lgrow b{color:var(--gold);white-space:nowrap}
+.lgbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px}.lgbar button{font-size:19px;padding:10px 22px}.lgbar button.on{background:var(--acc);color:#04231a;font-weight:700}.lgbar select{width:auto;font-size:19px;padding:9px 12px}
+.lgtb{width:100%;border-collapse:collapse;font-size:20px}.lgtb th{position:sticky;top:0;background:#0f2f3c;text-align:left;color:var(--mute);font-weight:500;padding:8px 10px;font-size:16px}.lgtb td{padding:8px 10px;border-bottom:1px solid var(--line)}
 .mewrap{display:grid;grid-template-columns:350px 1fr;gap:22px;flex:1;min-height:0}
 .megrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;align-content:start;overflow:auto;padding-right:4px}
 .megrid button{font-size:24px;padding:0;height:58px;min-height:0}.megrid button.on{background:var(--acc);color:#04231a;font-weight:700}
@@ -328,7 +331,7 @@ button.pri{background:var(--acc);color:#04231a;font-weight:700}
 
   <nav id="dock" class="ui">
     <button data-v="home" class="on"><span>🏠</span>首頁</button><button data-v="check"><span>✅</span>任務打卡</button><button data-v="garden"><span>🐦</span>全班鳥園</button><button data-v="me"><span>🪪</span>我的鳥</button>
-    <button data-v="guide"><span>📖</span>鳥種圖鑑</button><button data-v="shop"><span>🎁</span>獎勵商店</button><button data-v="stat"><span>📊</span>班級統計</button><button id="setBtn"><span>⚙</span>教師控制台</button>
+    <button data-v="guide"><span>📖</span>鳥種圖鑑</button><button data-v="shop"><span>🎁</span>獎勵商店</button><button data-v="stat"><span>📊</span>班級統計</button><button data-v="log"><span>📒</span>紀錄</button><button id="setBtn"><span>⚙</span>教師控制台</button>
   </nav>
   <button id="lk" class="glass ui" title="常用連結">🔗</button><div id="lkPop" class="glass ui"></div>
   <button id="fs" class="glass ui">⛶</button>
@@ -652,7 +655,8 @@ function perfProbe(){if((S.perf||'auto')!=='auto'||S.perfAutoLite||document.hidd
   if(now-t0<3000){requestAnimationFrame(f);return}
   const fps=n*1000/(now-t0);if(!bad&&fps<38&&(S.perf||'auto')==='auto'){S.perfAutoLite=true;save();applyPerf();toast('偵測到畫面比較吃力（約 '+Math.round(fps)+' 格/秒），已自動切換為「效能模式」。可在教師控制台調整。')}};
   requestAnimationFrame(f)},2500)}
-function sellOne(ci){const c=S.coll[ci];if(!c||c.sold)return 0;const p=S.sellPrice[SP[c.sp].tier]||10;c.sold=true;if(c.from)addCoin(c.from,p);save();return p}
+function sellOne(ci){const c=S.coll[ci];if(!c||c.sold)return 0;const p=S.sellPrice[SP[c.sp].tier]||10;c.sold=true;c.soldAt=Date.now();c.price=p;if(c.from)addCoin(c.from,p);save();return p}
+function rmStg(i,k){const L=S.stgLog||[];for(let j=L.length-1;j>=0;j--)if(L[j].seat===i&&L[j].stage===k){L.splice(j,1);return}}
 function sellAllTank(){const list=S.coll.map((c,i)=>[c,i]).filter(([c])=>!c.sold);if(!list.length){uiAlert('鳥園裡沒有可以放飛的鳥');return}
  const total=list.reduce((a,[c])=>a+(S.sellPrice[SP[c.sp].tier]||10),0);uiConfirm(`把鳥園收藏的 ${list.length} 隻鳥全部放飛？\n共 ${total} 金幣，會分給各隻鳥的主人，圖鑑的收集紀錄會保留。`,()=>{list.forEach(([c,i])=>sellOne(i));renderTop();renderView()},'全部放飛')}
 function pickSpecies(){const used=new Set([...Object.values(S.fish),...S.coll.filter(c=>!c.sold).map(c=>c.sp)]);let pool=SP.filter(s=>!used.has(s.id));if(!pool.length)pool=SP;
@@ -681,6 +685,7 @@ if(!S.links||(S.links.length===1&&S.links[0].u==='https://school.tc.edu.tw/'))S.
 if(S.links.length===5&&S.links[0].u==='https://cses.tc.edu.tw/app/index.php'&&S.links[4].u==='https://school.tc.edu.tw/')S.links.pop();
 if(S.pinKb===undefined)S.pinKb=!S.setup;
 if(!S.notices)S.notices=[];
+if(!S.stgLog)S.stgLog=S.coll.map(c=>({t:c.at||0,seat:c.from,sid:c.sp,stage:4,coins:c.up||0,old:1}));
 if(!S.dutyStart){S.dutyStart=(d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'))(new Date());S.dutyFirst=1;S.dutyN=2;S.dutyOv={};S.dutySkip={};S.dutyOn=true}
 if(!S.cityv){if(S.city&&S.city.name==='金門')S.city={name:'台中市清水區',lat:24.269,lon:120.560};S.cityv=1}
 if(!S.pcv){S.pcoins=S.pcoins||{};if(S.coins>0){const n=S.n||1,b=Math.floor(S.coins/n),rest=S.coins-b*n;for(let i=1;i<=n;i++)S.pcoins[i]=(S.pcoins[i]||0)+b+(i<=rest?1:0)}S.coins=0;S.pcv=1}
@@ -802,19 +807,34 @@ function meView(v){const n=S.n||30,i=ME;ensureFish();
  let card='<div class="mute" style="grid-column:1/-1;font-size:28px;text-align:center;margin-top:140px">← 先點你的座號</div>';
  if(i){const w=S.water[i]||0,st=stageOf(w),sid=S.fish[i],sp=sid!=null?SP[sid]:null,egg=st===0||!sp,th=S.th,nxt=th[Math.min(4,st+1)],base=th[st],pct=Math.max(0,Math.min(100,Math.round((w-base)/Math.max(1,nxt-base)*100))),need=Math.max(0,nxt-w),D=today(),dn=S.done[D]||{},t=sp?TIERS[sp.tier]:null;
   const tasks=S.tasks.map((x,k)=>[x,(dn[String(k)]||[]).includes(i)]).concat(cbTasks(D).map(x=>[x.name,(dn[x.key]||[]).includes(i)]));
-  const grads=S.coll.filter(c=>c.from===i).map(c=>`${esc(SP[c.sp].name)}${c.sold?'（已放飛）':'（在鳥園）'}`);
+  const grads=S.coll.filter(c=>c.from===i).map(c=>`${esc(SP[c.sp].name)}${c.sold?'（已放飛）':'（在鳥園）'}`);  const fmtT=t=>{if(!t)return'—';const d=new Date(t);return (d.getMonth()+1)+'/'+d.getDate()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')};
+  const lgS=(S.stgLog||[]).filter(x=>x.seat===i).slice().reverse().slice(0,12).map(x=>`<div class="lgrow"><span class="mute">${fmtT(x.t)}</span><span>${esc((SP[x.sid]||{}).name||'—')} → ${STAGES[x.stage].n}</span><b>${x.coins?'+'+x.coins+' 🪙':'—'}</b></div>`).join('')||'<div class="mute">還沒有紀錄</div>';
+  const lgR=S.coll.filter(c=>c.from===i&&c.sold).slice().reverse().map(c=>`<div class="lgrow"><span class="mute">${fmtT(c.soldAt)}</span><span>${esc(SP[c.sp].name)}</span><b>+${c.price!=null?c.price:(S.sellPrice[SP[c.sp].tier]||10)} 🪙</b></div>`).join('')||'<div class="mute">還沒有</div>';
+  const gotS=S.stgGot&&S.stgGot[i]>0?`<div style="font-size:19px;margin-bottom:4px">這隻目前已領到：<b style="color:var(--acc)">${STAGES[S.stgGot[i]].n}</b> 階段的獎勵</div>`:'';
+
   card=`<div style="text-align:center"><div style="height:230px;display:flex;align-items:center;justify-content:center">${egg?eggSVG(230):fishSVG(sp.id,270)}</div><div class="mebig">${i} 號</div>
    ${egg?`<div style="font-size:24px;margin-top:6px">還是鳥蛋</div>`:`<div style="font-size:30px;margin-top:6px;color:${t.c};font-weight:700">${esc(sp.name)}</div><div class="mute" style="font-size:20px">${t.n}　·　${STAGES[st].n}</div>`}
    <button id="meFind" class="pri" style="font-size:20px;padding:12px 22px;margin-top:14px">🔍 在鳥園找我的鳥</button>${egg?'':`<button id="meSp" data-sp="${sp.id}" style="font-size:18px;padding:10px 18px;margin:10px 0 0 8px">📖 看介紹</button>`}</div>
   <div><div class="mute" style="font-size:18px">成長進度</div><div style="font-size:24px">${STAGES[st].n} → ${STAGES[Math.min(4,st+1)].n}　<b>${w}</b> / ${nxt} 份飼料</div><div class="mebar"><i style="width:${pct}%"></i></div><div class="mute" style="font-size:19px">${st>=3?'再 '+need+' 份飼料就畢業，進入全班鳥園！':'還差 '+need+' 份飼料升級'}</div>
    <div class="mute" style="font-size:18px;margin-top:16px">我的金幣</div><div style="font-size:34px;font-weight:700;color:var(--gold)">🪙 ${pc(i)}</div>
    <div class="mute" style="font-size:18px;margin-top:16px">今天的任務</div>${tasks.map(x=>`<div class="metask ${x[1]?'ok':'no'}"><b>${x[1]?'✔':'○'}</b>${esc(x[0])}</div>`).join('')||'<div class="mute">今天沒有任務</div>'}
-   <div class="mute" style="font-size:18px;margin-top:16px">畢業過的鳥</div><div style="font-size:21px;line-height:1.7">${grads.join('、')||'還沒有'}</div></div>`}
+   <div class="mute" style="font-size:18px;margin-top:16px">畢業過的鳥</div><div style="font-size:21px;line-height:1.7">${grads.join('、')||'還沒有'}</div><div class="mute" style="font-size:18px;margin-top:16px">領過的階段獎勵</div>${gotS}${lgS}<div class="mute" style="font-size:18px;margin-top:16px">放飛紀錄</div>${lgR}</div>`}
  v.innerHTML=`<h2>🪪 我的鳥 <small class="mute" style="font-size:15px">　點你的座號，看自己的鳥和成長進度</small></h2><div class="mewrap"><div class="megrid">${seats}</div><div class="mecard">${card}</div></div>`}
 document.addEventListener('click',e=>{const m=e.target.closest('.megrid [data-me]');if(m){ME=+m.dataset.me;renderView();return}
  const g=e.target.closest('[data-go="me"]');if(g){ME=+g.dataset.me;V='me';renderView();return}
  if(e.target.closest('#meFind')){FIND=ME;V='garden';renderView();return}
  const sp=e.target.closest('#meSp');if(sp)showSp(+sp.dataset.sp)});
+/* 紀錄：每個座號領過的階段獎勵、放飛紀錄 */
+let LG={tab:'stg',seat:0};
+const lgFmt=t=>{if(!t)return'—';const d=new Date(t);return (d.getMonth()+1)+'/'+d.getDate()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')};
+function logView(v){const n=S.n||30,stg=LG.tab==='stg';
+ const rows=stg?(S.stgLog||[]).map(x=>({t:x.t,seat:x.seat,sp:SP[x.sid],a:STAGES[x.stage].n,c:x.coins||0,note:x.note||''})):S.coll.filter(c=>c.sold).map(c=>({t:c.soldAt||0,seat:c.from,sp:SP[c.sp],a:TIERS[SP[c.sp].tier].n,c:c.price!=null?c.price:(S.sellPrice[SP[c.sp].tier]||10),note:''}));
+ const list=rows.filter(r=>!LG.seat||r.seat===LG.seat).sort((x,y)=>(y.t||0)-(x.t||0)),total=list.reduce((a,r)=>a+r.c,0);
+ v.innerHTML=`<h2>📒 紀錄 <small class="mute" style="font-size:15px">　每個座號領過的階段獎勵，以及放飛的紀錄</small></h2>
+ <div class="lgbar"><button data-lgtab="stg" class="${stg?'on':''}">階段獎勵紀錄</button><button data-lgtab="sell" class="${stg?'':'on'}">放飛紀錄</button><select id="lgSeat"><option value="0">全部座號</option>${Array.from({length:n},(_,i)=>`<option value="${i+1}" ${LG.seat===i+1?'selected':''}>${i+1} 號</option>`).join('')}</select><span class="mute" style="font-size:18px">共 ${list.length} 筆，金幣合計 <b style="color:var(--gold)">${total}</b></span></div>
+ <div class="scroll" style="flex:1;min-height:0;overflow:auto"><table class="lgtb"><thead><tr><th>時間</th><th>座號</th><th>鳥種</th><th>${stg?'階段':'稀有度'}</th><th>金幣</th><th></th></tr></thead><tbody>${list.slice(0,300).map(r=>`<tr><td class="mute">${lgFmt(r.t)}</td><td>${r.seat} 號</td><td>${r.sp?`<b style="color:${TIERS[r.sp.tier].c}">${esc(r.sp.name)}</b>`:'—'}</td><td>${esc(r.a)}</td><td style="color:var(--gold)">${r.c?'+'+r.c+' 🪙':'—'}</td><td class="mute">${esc(r.note)}</td></tr>`).join('')||'<tr><td colspan="6" class="mute" style="padding:30px;text-align:center">還沒有紀錄</td></tr>'}</tbody></table></div>`}
+document.addEventListener('click',e=>{const t=e.target.closest('[data-lgtab]');if(t){LG.tab=t.dataset.lgtab;renderView()}});
+document.addEventListener('change',e=>{if(e.target.id==='lgSeat'){LG.seat=+e.target.value;renderView()}});
 /* 值日生：每天固定人數（預設 2 位），依座號輪替；只算週一到週五、扣掉「今天不上課」的日子 */
 const dutyPD=s=>{const m=String(s).split('-');return new Date(+m[0],+m[1]-1,+m[2])};
 const dutyWork=d=>{const w=d.getDay();return w>=1&&w<=5&&!(S.dutySkip&&S.dutySkip[ymd(d)])};
@@ -930,8 +950,8 @@ const doneOf=c=>((S.done[c.date]||{})[c.key])||[];
 /* 今日發出的飼料量（取消打卡會扣回；以「實際發出的那一天」計算） */
 function feedDay(n){S.feedDay=S.feedDay||{};const k=today();S.feedDay[k]=Math.max(0,(S.feedDay[k]||0)+n)}
 function grow(i,r,by){const was=S.water[i]||0;S.water[i]=was+r;feedDay(r);const a=stageOf(was),b=stageOf(was+r);
- if(b>a){addCoin(i,S.coinUp);ensureFish();const sp=SP[S.fish[i]];let grad=false;
-  if(b===4){S.coll.push({sp:sp.id,sold:false,from:i,at:Date.now(),by,w:S.water[i],up:S.coinUp,r});S.foodBase+=S.water[i];S.water[i]=0;delete S.fish[i];grad=true}
+ if(b>a||b===4){S.stgGot=S.stgGot||{};const got=S.stgGot[i]!=null?S.stgGot[i]:a;ensureFish();if(b>got){addCoin(i,S.coinUp);S.stgGot[i]=b;(S.stgLog=S.stgLog||[]).push({t:Date.now(),seat:i,sid:S.fish[i],stage:b,coins:S.coinUp||0})}const sp=SP[S.fish[i]];let grad=false;
+  if(b===4){S.coll.push({sp:sp.id,sold:false,from:i,at:Date.now(),by,w:S.water[i],up:S.coinUp,r});S.foodBase+=S.water[i];S.water[i]=0;delete S.fish[i];delete S.stgGot[i];grad=true}
   return{i,a,b,sp,grad}}return null}
 /* 單一學生打卡/取消（只改資料）；回傳升級資訊 */
 function setDone0(i,on,c){const k=c.date,key=c.key,r=c.r;S.done[k]=S.done[k]||{};const l=S.done[k][key]=S.done[k][key]||[],has=l.includes(i),was=S.water[i]||0;
@@ -939,9 +959,9 @@ function setDone0(i,on,c){const k=c.date,key=c.key,r=c.r;S.done[k]=S.done[k]||{}
  if(!on){const by=k+'|'+key,gi=S.coll.findIndex(x=>x.from===i&&x.by===by);
   if(gi>=0&&was>0){uiAlert(`${i} 號的鳥已經畢業，而且新的鳥已經有飼料了，無法取消這次打卡`);return null}
   l.splice(l.indexOf(i),1);addCoin(i,-S.coinPer);
-  if(gi>=0){const x=S.coll[gi];if(x.sold)addCoin(i,-(S.sellPrice[SP[x.sp].tier]||10));addCoin(i,-(x.up||0));
-   S.coll.splice(gi,1);S.foodBase=Math.max(0,S.foodBase-x.w);S.fish[i]=x.sp;S.water[i]=Math.max(0,x.w-(x.r||1));feedDay(-(x.r||1))}
-  else{const nw=Math.max(0,was-r);S.water[i]=nw;feedDay(-(was-nw));if(stageOf(was)>stageOf(nw))addCoin(i,-S.coinUp)}
+  if(gi>=0){const x=S.coll[gi];if(x.sold)addCoin(i,-(x.price!=null?x.price:(S.sellPrice[SP[x.sp].tier]||10)));addCoin(i,-(x.up||0));rmStg(i,4);
+   S.coll.splice(gi,1);S.foodBase=Math.max(0,S.foodBase-x.w);S.fish[i]=x.sp;S.water[i]=Math.max(0,x.w-(x.r||1));feedDay(-(x.r||1));S.stgGot=S.stgGot||{};S.stgGot[i]=stageOf(S.water[i])}
+  else{const nw=Math.max(0,was-r);S.water[i]=nw;feedDay(-(was-nw));if(stageOf(was)>stageOf(nw)){S.stgGot=S.stgGot||{};const got=S.stgGot[i]!=null?S.stgGot[i]:stageOf(was);if(got>=stageOf(was)){addCoin(i,-S.coinUp);rmStg(i,stageOf(was));S.stgGot[i]=stageOf(nw)}}}
   return null}
  l.push(i);addCoin(i,S.coinPer);return grow(i,r,k+'|'+key)}
 /* 聯絡簿任務：全部完成的額外獎勵 */
@@ -1286,6 +1306,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#ckOpen'))requireTeac
 function renderView(){if(tankRAF){cancelAnimationFrame(tankRAF);tankRAF=0}$$('#dock button[data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v===V));const v=$('#view');v.classList.toggle('on',V!=='home');$('#stage').classList.toggle('inview',V!=='home');if(V==='home')return;
  if(V==='check')v.innerHTML=`<h2>✅ 任務打卡</h2><div class="row" style="margin-bottom:14px"><span class="mute">今日任務</span>${taskSel()}<span class="mute">點座號完成，再點一次取消</span></div><div class="grid scroll" style="grid-template-columns:repeat(auto-fill,minmax(110px,1fr));align-content:start">${checkGrid(88)}</div>`;
  else if(V==='me'){meView(v)}
+ else if(V==='log'){logView(v)}
  else if(V==='garden'){ensureFish();startTank(v)}
   else if(V==='shop')v.innerHTML=shopHTML();
  else if(V==='guide'){ensureFish();const found=foundSet(),cnt=TIERS.map((_,t)=>[SP.filter(s=>s.tier===t).length,SP.filter(s=>s.tier===t&&found.has(s.id)).length]);
@@ -1377,15 +1398,22 @@ $('#swTheme').onclick=()=>{try{localStorage.removeItem('classdashboard.theme')}c
 function buildTT(){const D=['一','二','三','四','五'];$('#ttBox').innerHTML='<table style="width:100%;border-collapse:collapse"><tr><td></td>'+D.map(d=>`<td class="mute" style="text-align:center;padding:2px">星期${d}</td>`).join('')+'</tr>'+TTP.map(n=>`<tr><td class="mute" style="padding:2px 6px;white-space:nowrap">${n}</td>`+D.map((d,i)=>`<td style="padding:2px"><input class="ttIn" data-d="${i+1}" data-p="${n}" value="${esc(((S.tt||{})[i+1]||{})[n]||'')}" style="padding:6px 4px;text-align:center;font-size:15px"></td>`).join('')+'</tr>').join('')+'</table>'}
 function openConsole(){$('#lkTx').value=(S.links||[]).map(l=>l.n+' '+l.u).join('\n');buildTT();$('#pinMode').value=S.pinKb?'kb':'pad';$('#perfSel').value=S.perf||'auto';$('#perfInfo').textContent=`目前狀態：${LITE?'效能模式（已省效能）':'完整特效'}${(S.perf||'auto')==='auto'&&S.perfAutoLite?'（自動偵測到卡頓，已切換）':''}。YouTube 影片本身最吃資源，若仍然卡，可以先暫停音樂。`;$('#nIn').value=S.n;$('#taskTx').value=S.tasks.join('\n');schWork={d:S.sched.join('\n')};for(const k in (S.schedDay||{}))schWork[k]=S.schedDay[k].join('\n');schCur='d';$('#schDay').value='d';$('#schTx').value=schWork.d;$('#thIn').value=S.th.join(',');$('#coinPer').value=S.coinPer;$('#coinUp').value=S.coinUp;$('#coinSeat').value='';$('#coinNow').value='';[0,1,2,3].forEach(k=>$('#sp'+k).value=S.sellPrice[k]);$('#dlg').classList.add('on');drawBackup()}
 $('#setBtn').onclick=()=>requireTeacher(openConsole);
+/* 成長門檻：格式檢查、儲存前預估影響、已超過畢業門檻的鳥一次畢業 */
+let thGrad=0,thOK=false;
+const thParse=()=>{const a=$('#thIn').value.split(',').map(x=>x.trim()===''?NaN:Number(x));return a.length===5&&a.every((v,i)=>Number.isInteger(v)&&v>=0&&(i===0?v===0:v>a[i-1]))?a:null};
+const stageWith=(th,w)=>{let k=0;th.forEach((t,j)=>{if(w>=t)k=j});return k};
+function thImpact(a){let up=0,down=0,grad=0;for(let i=1;i<=S.n;i++){const w=S.water[i]||0;if(!w&&S.fish[i]==null)continue;const s0=stageWith(S.th,w),s1=stageWith(a,w);if(s1===4)grad++;else if(s1>s0)up++;else if(s1<s0)down++}return{up,down,grad}}
+function sweepGrad(){let n=0;ensureFish();for(let i=1;i<=S.n;i++){const w=S.water[i]||0;if(stageOf(w)!==4)continue;const sp=SP[S.fish[i]];if(!sp)continue;S.coll.push({sp:sp.id,sold:false,from:i,at:Date.now(),by:'門檻調整',w,up:0,r:0});(S.stgLog=S.stgLog||[]).push({t:Date.now(),seat:i,sid:sp.id,stage:4,coins:0,note:'調整門檻'});S.foodBase+=w;S.water[i]=0;delete S.fish[i];if(S.stgGot)delete S.stgGot[i];n++}return n}
 $('#saveDlg').onclick=()=>{
+ {const ok=thOK;thOK=false;const a=thParse();if(a&&!ok&&JSON.stringify(a)!==JSON.stringify(S.th)){const c=thImpact(a);if(c.up||c.down||c.grad)return uiConfirm(`套用新的成長門檻後，目前正在成長的鳥會有變化：\n・升級 ${c.up} 隻\n・退回較低階段 ${c.down} 隻\n・直接畢業進鳥園 ${c.grad} 隻\n已經拿過的升級獎勵不會重複發放。確定要儲存嗎？`,()=>{thOK=true;$('#saveDlg').click()},'確定套用')}}
  const n=Math.max(1,Math.min(60,+$('#nIn').value||S.n));S.n=n;
  const t=$('#taskTx').value.split('\n').map(s=>s.trim()).filter(Boolean);if(t.length)S.tasks=t;if(+curTask>=S.tasks.length)curTask='0';
  schWork[schCur]=$('#schTx').value;const sl=t=>t.split('\n').map(s=>s.trim()).filter(Boolean);{const d=sl(schWork.d||'');if(d.length)S.sched=d;S.schedDay={};['1','2','3','4','5'].forEach(k=>{const a=sl(schWork[k]||'');if(a.length)S.schedDay[k]=a})}
- const a=$('#thIn').value.split(',').map(Number);if(a.length===5&&a.every((v,i)=>!isNaN(v)&&(i===0||v>a[i-1])))S.th=a;else uiAlert('成長門檻需要 5 個遞增數字，這項沒有儲存');
+ const a=thParse();if(a){S.th=a;thGrad=sweepGrad()}else uiAlert('成長門檻需要 5 個遞增的整數，第一個必須是 0，這項沒有儲存');
  const num=(id,d)=>{const v=parseInt($(id).value,10);return isNaN(v)||v<0?d:v};
  S.coinPer=num('#coinPer',S.coinPer);S.coinUp=num('#coinUp',S.coinUp);{const sn=parseInt($('#coinSeat').value,10),cv=parseInt($('#coinNow').value,10);if(sn>=1&&sn<=S.n&&!isNaN(cv)&&cv>=0){S.pcoins=S.pcoins||{};S.pcoins[sn]=cv}}S.sellPrice=[0,1,2,3].map(k=>num('#sp'+k,S.sellPrice[k]));
  S.pinKb=$('#pinMode').value==='kb';S.links=$('#lkTx').value.split('\n').map(t=>t.trim()).filter(Boolean).map(t=>{const m=t.match(/^(.*?)\s*(https?:\/\/\S+)$/i);return m?{n:m[1]||m[2],u:m[2]}:null}).filter(Boolean);S.tt={};$$('.ttIn').forEach(i=>{const v=i.value.trim();if(v){(S.tt[i.dataset.d]=S.tt[i.dataset.d]||{})[i.dataset.p]=v}});{const pv=$('#perfSel').value;if(pv!==(S.perf||'auto')){S.perf=pv;S.perfAutoLite=false}applyPerf();if(typeof perfProbe==='function'&&S.perf==='auto')perfProbe()}
- save();$('#dlg').classList.remove('on');renderAll();renderLeft()};
+ save();$('#dlg').classList.remove('on');renderAll();renderLeft();if(thGrad){const g=thGrad;thGrad=0;uiAlert((`有 ${g} 隻鳥已經超過畢業門檻，已經畢業進鳥園了。`))}};
 $('#nSet').onclick=()=>{};
 $('#cityBtn').onclick=async()=>{const q=$('#cityIn').value.trim();if(!q)return;try{const r=await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=1&language=zh`);const j=await r.json();if(!j.results)return uiAlert('找不到這個地點');const p=j.results[0];S.city={name:p.name,lat:p.latitude,lon:p.longitude};save();$('#cityIn').value='';weather();uiAlert('已切換到 '+p.name)}catch(e){uiAlert('查詢失敗（需要網路）')}};
 $('#resetGame').onclick=()=>forcePin(()=>uiConfirm('確定清空所有鳥園進度與每位同學的金幣？\n此動作無法復原。',()=>{S.fish={};S.water={};S.done={};S.feedDay={};S.pcoins={};S.log=[];S.coll=[];S.foodBase=0;save();renderAll()},'清空'),'清空進度需要老師密碼');
