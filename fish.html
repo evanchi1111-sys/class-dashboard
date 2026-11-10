@@ -146,6 +146,7 @@ button.pri{background:var(--acc);color:#04231a;font-weight:700}
 .fpT{font-size:26px;font-weight:700;text-align:center;margin-bottom:12px}
 .fpG{display:grid;grid-template-columns:repeat(10,64px);gap:8px;justify-content:center}.fpG button{font-size:26px;padding:0;height:56px;min-height:0}
 .fpX{display:block;margin:14px auto 0;font-size:20px;padding:10px 30px}
+.gdrow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:5px 0}.gdrow button{font-size:18px;padding:8px 16px;min-height:0;white-space:nowrap}
 .lgrow{display:flex;gap:12px;align-items:center;font-size:19px;padding:5px 0;border-bottom:1px solid var(--line)}.lgrow span:nth-child(2){flex:1}.lgrow b{color:var(--gold);white-space:nowrap}
 .lgbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px}.lgbar button{font-size:19px;padding:10px 22px}.lgbar button.on{background:var(--acc);color:#04231a;font-weight:700}.lgbar select{width:auto;font-size:19px;padding:9px 12px}
 .lgtb{width:100%;border-collapse:collapse;font-size:20px}.lgtb th{position:sticky;top:0;background:#0f2f3c;text-align:left;color:var(--mute);font-weight:500;padding:8px 10px;font-size:16px}.lgtb td{padding:8px 10px;border-bottom:1px solid var(--line)}
@@ -824,7 +825,7 @@ function meView(v){const n=S.n||30,i=ME;ensureFish();
  let card='<div class="mute" style="grid-column:1/-1;font-size:28px;text-align:center;margin-top:140px">← 先點你的座號</div>';
  if(i){const w=S.water[i]||0,st=stageOf(w),sid=S.fish[i],sp=sid!=null?SP[sid]:null,egg=st===0||!sp,th=S.th,nxt=th[Math.min(4,st+1)],base=th[st],pct=Math.max(0,Math.min(100,Math.round((w-base)/Math.max(1,nxt-base)*100))),need=Math.max(0,nxt-w),D=today(),dn=S.done[D]||{},t=sp?TIERS[sp.tier]:null;
   const tasks=S.tasks.map((x,k)=>[x,(dn[String(k)]||[]).includes(i)]).concat(cbTasks(D).map(x=>[x.name,(dn[x.key]||[]).includes(i)]));
-  const grads=S.coll.filter(c=>c.from===i).map(c=>`${esc(SP[c.sp].name)}${c.sold?'（已賣出）':'（在水族箱）'}`);  const fmtT=t=>{if(!t)return'—';const d=new Date(t);return (d.getMonth()+1)+'/'+d.getDate()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')};
+  const grads=S.coll.filter(c=>c.from===i).map(c=>`${esc(SP[c.sp].name)}${c.sold?'（已賣出）':'（在水族箱）'}`);  const gradRows=S.coll.map((c,ci)=>[c,ci]).filter(([c])=>c.from===i).map(([c,ci])=>{const nm=esc(SP[c.sp].name);return c.sold?`<div class="gdrow"><span>${nm}</span><span class="mute">（已賣出）</span></div>`:`<div class="gdrow"><span>${nm}（在水族箱）</span><button class="pri" data-mesell="${ci}">賣出 +${S.sellPrice[SP[c.sp].tier]||10} 🪙</button></div>`}).join('')||'還沒有';const fmtT=t=>{if(!t)return'—';const d=new Date(t);return (d.getMonth()+1)+'/'+d.getDate()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')};
   const lgS=(S.stgLog||[]).filter(x=>x.seat===i).slice().reverse().slice(0,12).map(x=>`<div class="lgrow"><span class="mute">${fmtT(x.t)}</span><span>${esc((SP[x.sid]||{}).name||'—')} → ${STAGES[x.stage].n}</span><b>${x.coins?'+'+x.coins+' 🪙':'—'}</b></div>`).join('')||'<div class="mute">還沒有紀錄</div>';
   const lgR=S.coll.filter(c=>c.from===i&&c.sold).slice().reverse().map(c=>`<div class="lgrow"><span class="mute">${fmtT(c.soldAt)}</span><span>${esc(SP[c.sp].name)}</span><b>+${c.price!=null?c.price:(S.sellPrice[SP[c.sp].tier]||10)} 🪙</b></div>`).join('')||'<div class="mute">還沒有</div>';
   const gotS=S.stgGot&&S.stgGot[i]>0?`<div style="font-size:19px;margin-bottom:4px">這隻目前已領到：<b style="color:var(--acc)">${STAGES[S.stgGot[i]].n}</b> 階段的獎勵</div>`:'';
@@ -835,9 +836,10 @@ function meView(v){const n=S.n||30,i=ME;ensureFish();
   <div><div class="mute" style="font-size:18px">成長進度</div><div style="font-size:24px">${STAGES[st].n} → ${STAGES[Math.min(4,st+1)].n}　<b>${w}</b> / ${nxt} 份飼料</div><div class="mebar"><i style="width:${pct}%"></i></div><div class="mute" style="font-size:19px">${st>=3?'再 '+need+' 份飼料就畢業，進入全班水族箱！':'還差 '+need+' 份飼料升級'}</div>
    <div class="mute" style="font-size:18px;margin-top:16px">我的金幣</div><div style="font-size:34px;font-weight:700;color:var(--gold)">🪙 ${pc(i)}</div>
    <div class="mute" style="font-size:18px;margin-top:16px">今天的任務</div>${tasks.map(x=>`<div class="metask ${x[1]?'ok':'no'}"><b>${x[1]?'✔':'○'}</b>${esc(x[0])}</div>`).join('')||'<div class="mute">今天沒有任務</div>'}
-   <div class="mute" style="font-size:18px;margin-top:16px">畢業過的魚</div><div style="font-size:21px;line-height:1.7">${grads.join('、')||'還沒有'}</div><div class="mute" style="font-size:18px;margin-top:16px">領過的階段獎勵</div>${gotS}${lgS}<div class="mute" style="font-size:18px;margin-top:16px">賣出紀錄</div>${lgR}</div>`}
+   <div class="mute" style="font-size:18px;margin-top:16px">畢業過的魚</div><div style="font-size:21px;line-height:1.5">${gradRows}</div><div class="mute" style="font-size:18px;margin-top:16px">領過的階段獎勵</div>${gotS}${lgS}<div class="mute" style="font-size:18px;margin-top:16px">賣出紀錄</div>${lgR}</div>`}
  v.innerHTML=`<h2>🪪 我的魚 <small class="mute" style="font-size:15px">　點你的座號，看自己的魚和成長進度</small></h2><div class="mewrap"><div class="megrid">${seats}</div><div class="mecard">${card}</div></div>`}
-document.addEventListener('click',e=>{const m=e.target.closest('.megrid [data-me]');if(m){ME=+m.dataset.me;renderView();return}
+document.addEventListener('click',e=>{const ms=e.target.closest('[data-mesell]');if(ms){const ci=+ms.dataset.mesell;forcePin(()=>{if(!sellOne(ci))return;renderTop();renderView()},'賣出需要老師密碼');return}
+ const m=e.target.closest('.megrid [data-me]');if(m){ME=+m.dataset.me;renderView();return}
  const g=e.target.closest('[data-go="me"]');if(g){ME=+g.dataset.me;V='me';renderView();return}
  if(e.target.closest('#meFind')){FIND=ME;V='garden';renderView();return}
  const sp=e.target.closest('#meSp');if(sp)showSp(+sp.dataset.sp)});
