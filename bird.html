@@ -169,6 +169,7 @@ button.pri{background:var(--acc);color:#04231a;font-weight:700}
 .lgrow{display:flex;gap:12px;align-items:center;font-size:19px;padding:5px 0;border-bottom:1px solid var(--line)}.lgrow span:nth-child(2){flex:1}.lgrow b{color:var(--gold);white-space:nowrap}
 .lgbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px}.lgbar button{font-size:19px;padding:10px 22px}.lgbar button.on{background:var(--acc);color:#04231a;font-weight:700}.lgbar select{width:auto;font-size:19px;padding:9px 12px}
 .lgtb{width:100%;border-collapse:collapse;font-size:20px}.lgtb th{position:sticky;top:0;background:#0f2f3c;text-align:left;color:var(--mute);font-weight:500;padding:8px 10px;font-size:16px}.lgtb td{padding:8px 10px;border-bottom:1px solid var(--line)}
+#cdRow{align-items:center}#cdRow button{font-size:20px;padding:10px 16px;min-width:56px}#cdRow input{width:100px;text-align:center;font-size:30px;font-weight:700;padding:8px 6px}
 .mewrap{display:grid;grid-template-columns:350px 1fr;gap:22px;flex:1;min-height:0}
 .megrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;align-content:start;overflow:auto;padding-right:4px}
 .megrid button{font-size:24px;padding:0;height:58px;min-height:0}.megrid button.on{background:var(--acc);color:#04231a;font-weight:700}
@@ -911,7 +912,7 @@ $('#lbody').onclick=e=>{const d=e.target.dataset,l=cbList(cbDate());
  if(d.ex!==undefined){S.events.splice(d.ex,1);save();renderLeft()}};
 
 /* 中央 */
-let C='now',curTask='0',tTotal=25*60,tLeft=tTotal,tMode='down',tTimer=null,pPhase='work';
+let C='now',curTask='0',tTotal=25*60,tLeft=tTotal,tMode='',tTimer=null,pPhase='work';
 const beep=()=>{try{const a=new AudioContext();[0,.3,.6].forEach(t=>{const o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.frequency.value=880;g.gain.value=.25;o.start(a.currentTime+t);o.stop(a.currentTime+t+.2)})}catch(e){}};
 const fmt=s=>pad(Math.floor(s/60))+':'+pad(s%60);
 function taskSel(){const all=(((S.done[today()]||{})[curTask])||[]).length>=S.n;
@@ -926,12 +927,15 @@ function renderCenter(){$$('#ctabs button').forEach(b=>b.classList.toggle('on',b
   <div class="wx" id="wx" style="cursor:pointer" title="點一下更換地點">${wxHTML}</div>
   <div class="bot"><span class="per" id="per">${perHTML()}</span><span class="dn"><b>${done}</b> <span class="mute">/ ${S.n}<br>已完成任務</span></span></div></div>`;
   $('#wx').onclick=()=>$('#setBtn').click();tick()}
- else if(C==='down'||C==='pomo'){const pomo=C==='pomo';if(tMode!==C){stopT();tMode=C;tTotal=tLeft=(pomo?25:10)*60;pPhase='work'}
-  const presets=pomo?[['專心學習 25分',25*60,'work'],['小休息 5分',5*60,'break'],['大休息 15分',15*60,'break']]:[[5],[10],[15],[20],[30],[45]].map(x=>[x[0]+'分',x[0]*60]);
+ else if(C==='down'||C==='pomo'){const pomo=C==='pomo';if(tMode!==C){stopT();tMode=C;tTotal=tLeft=(pomo?25:(S.cdLast||10))*60;pPhase='work'}
+  const presets=pomo?[['專心學習 25分',25*60,'work'],['小休息 5分',5*60,'break'],['大休息 15分',15*60,'break']]:[[1],[2],[3],[5],[8],[10]].map(x=>[x[0]+'分',x[0]*60]);
   el.innerHTML=`<div class="mute" style="text-align:center;margin-bottom:10px">${pomo?(pPhase==='work'?'🍅 專注時間':'☕ 休息時間'):'⏳ 倒數計時'}</div><div class="bigt" id="tbig">${fmt(tLeft)}</div><div class="bar"><i id="tbar" style="width:${100*(tTotal-tLeft)/tTotal}%"></i></div>
   <div class="btns">${presets.map((p,i)=>`<button data-pre="${i}">${p[0]}${pomo?'':''}</button>`).join('')}</div>
-  <div class="btns"><button class="pri" id="tGo" style="min-width:140px">${tTimer?'暫停':'開始'}</button><button id="tRe">重設</button></div>`;
+  ${pomo?'':`<div class="btns" id="cdRow"><button data-cd="-3">−3</button><button data-cd="-1">−1</button><input id="cdMin" type="number" min="1" max="45" value="${Math.round(tTotal/60)}" aria-label="倒數分鐘數"><span class="mute" style="font-size:20px">分鐘</span><button data-cd="1">＋1</button><button data-cd="3">＋3</button><button class="pri" id="cdSet">設定</button></div>`}<div class="btns"><button class="pri" id="tGo" style="min-width:140px">${tTimer?'暫停':'開始'}</button><button id="tRe">重設</button></div>`;
   $$('[data-pre]').forEach(b=>b.onclick=()=>{stopT();const p=presets[b.dataset.pre];tTotal=tLeft=p[1];if(pomo)pPhase=p[2];renderCenter()});
+ if(!pomo){const setMin=m=>{m=Math.max(1,Math.min(45,Math.round(+m)||0));stopT();tTotal=tLeft=m*60;S.cdLast=m;save();renderCenter()};
+   $('#cdSet').onclick=()=>setMin($('#cdMin').value);$('#cdMin').onkeydown=e=>{if(e.key==='Enter')setMin($('#cdMin').value)};$('#cdMin').onfocus=e=>e.target.select();
+   $$('[data-cd]').forEach(b=>b.onclick=()=>{const d=+b.dataset.cd;if(tTimer){tLeft=Math.min(2700,Math.max(10,tLeft+d*60));tTotal=Math.min(2700,Math.max(tTotal+d*60,tLeft));$('#tbig').textContent=fmt(tLeft);$('#cdMin').value=Math.round(tTotal/60);$('#tbar').style.width=100*(tTotal-tLeft)/tTotal+'%'}else setMin(Math.round(tTotal/60)+d)})}
   $('#tGo').onclick=()=>{if(tTimer){stopT();renderCenter();return}if(tLeft<=0)tLeft=tTotal;tTimer=setInterval(()=>{tLeft--;if(tLeft<=0){tLeft=0;stopT();beep();if(pomo){pPhase=pPhase==='work'?'break':'work';tTotal=tLeft=(pPhase==='work'?25:5)*60}renderCenter();return}
    const b=$('#tbig');if(b){b.textContent=fmt(tLeft);$('#tbar').style.width=100*(tTotal-tLeft)/tTotal+'%'}},1000);renderCenter()};
   $('#tRe').onclick=()=>{stopT();tLeft=tTotal;renderCenter()}}
