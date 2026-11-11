@@ -669,7 +669,17 @@ function pickSpecies(){const used=new Set([...Object.values(S.fish),...S.coll.fi
 /* 舊版魚種名單（200 種）換成新名單後，把已有的魚重新分配 */
 function migrateSpecies(){if(S.spv===2)return;const ids=Object.keys(S.fish);S.fish={};S.coll.forEach(c=>{c.sp=-1});ids.forEach(i=>{S.fish[i]=pickSpecies()});S.coll.forEach(c=>{c.sp=pickSpecies()});S.spv=2;save()}
 function ensureFish(){let ch=false;for(let i=1;i<=S.n;i++)if(stageOf(S.water[i]||0)>=1&&S.fish[i]==null){S.fish[i]=pickSpecies();ch=true}if(ch)save()}
-const KEY='classdashboard.bird.v1';
+/* 測試版（網址加 ?demo=1）：資料存在另一個位置，不影響正式班級；可模擬日期、時間與天氣 */
+const DEMO=/[?&]demo=1/.test(location.search);
+const KEY='classdashboard.bird.v1'+(DEMO?'.demo':'');
+if(DEMO){const RD=Date;let off=+(localStorage.getItem(KEY+'.off')||0)||0;window.__RD=RD;
+ class FD extends RD{constructor(...a){if(a.length===0)super(RD.now()+off);else super(...a)}static now(){return RD.now()+off}}
+ window.Date=FD;
+ const rf=window.fetch.bind(window);window.fetch=(u,o)=>{let wx=null;try{wx=JSON.parse(localStorage.getItem(KEY+'.wx')||'null')}catch(e){}const s=String(u);
+  if(wx&&wx.wind!=null&&s.includes('api.open-meteo.com/v1/forecast'))return Promise.resolve({json:async()=>({current:{temperature_2m:24,weather_code:3,wind_speed_10m:wx.wind,wind_direction_10m:wx.deg==null?45:wx.deg,wind_gusts_10m:wx.gust},daily:{temperature_2m_max:[27],temperature_2m_min:[20],precipitation_probability_max:[30]}})});
+  if(wx&&wx.aqi!=null&&s.includes('air-quality-api'))return Promise.resolve({json:async()=>({current:{us_aqi:wx.aqi,pm2_5:wx.pm}})});
+  return rf(u,o)}}
+
 const def={setup:false,fish:{},n:30,tasks:['帶齊用品','作業完成','主動打掃'],th:[0,3,8,15,25],water:{},coins:0,done:{},notes:{},events:[],
  city:{name:'台中市清水區',lat:24.269,lon:120.560},cbQuick:['帶水壺','家長簽名','穿體育服','帶美勞用具','攜帶便當袋','明天繳交','複習功課'],cbMsg:'請完整抄寫，寫完舉手讓老師檢查。',cbFont:0,cbBonus:{},cbBonusGiven:{},semStart:'2026-08-31',semName:'115 學年度第 1 學期',picked:[],vol:.5,amb:'none',pos:{},log:[],coinPer:0,coinUp:0,pin:null,rec:null,feedDay:{},perf:'auto',perfAutoLite:false,pcoins:{},exams:[],examNotes:null,examRun:null,coll:[],foodBase:0,sellPrice:[10,30,80,200],lastBackup:null,ytCur:0,yt:[{name:'咖啡店輕音樂',id:'oCWN-stWDyE'},null,null,null,null],
  shop:[{icon:'🎧',name:'聽音樂 10 分鐘',price:30},{icon:'🍬',name:'小點心',price:50},{icon:'🪑',name:'自選座位一天',price:60},{icon:'👑',name:'當一日班長',price:80},{icon:'✏️',name:'免寫一次作業',price:120},{icon:'🎬',name:'全班電影時間',price:300}],
@@ -1480,8 +1490,8 @@ async function idbGet(k){try{const d=await idb();return await new Promise(res=>{
 async function idbSet(k,v){try{const d=await idb();await new Promise(res=>{const t=d.transaction('kv','readwrite');t.objectStore('kv').put(v,k);t.oncomplete=res;t.onerror=res})}catch(e){}}
 function queueFileSave(){if(!fh||fhNeed)return;clearTimeout(fhTimer);fhTimer=setTimeout(writeFile,1500)}
 async function writeFile(){if(!fh)return;try{const w=await fh.createWritable();await w.write(JSON.stringify(S));await w.close();fhAt=Date.now();fhErr=''}catch(e){fhErr='寫入失敗：'+(e.message||e)}drawBackup()}
-async function linkFile(){try{const h=await showSaveFilePicker({suggestedName:'班級儀表板-自動備份.json',types:[{description:'JSON 備份檔',accept:{'application/json':['.json']}}]});fh=h;fhNeed=false;await idbSet('fh',h);await writeFile()}catch(e){if(e.name!=='AbortError')uiAlert('無法建立備份檔：'+(e.message||e))}drawBackup()}
-async function restoreHandle(){if(!FS)return;const h=await idbGet('fh');if(!h)return;fh=h;try{fhNeed=(await h.queryPermission({mode:'readwrite'}))!=='granted'}catch(e){fhNeed=true}if(!fhNeed)writeFile();drawBackup()}
+async function linkFile(){if(DEMO)return uiAlert('測試版不提供自動備份到檔案，避免覆蓋正式的備份檔。');try{const h=await showSaveFilePicker({suggestedName:'班級儀表板-自動備份.json',types:[{description:'JSON 備份檔',accept:{'application/json':['.json']}}]});fh=h;fhNeed=false;await idbSet('fh',h);await writeFile()}catch(e){if(e.name!=='AbortError')uiAlert('無法建立備份檔：'+(e.message||e))}drawBackup()}
+async function restoreHandle(){if(!FS||DEMO)return;const h=await idbGet('fh');if(!h)return;fh=h;try{fhNeed=(await h.queryPermission({mode:'readwrite'}))!=='granted'}catch(e){fhNeed=true}if(!fhNeed)writeFile();drawBackup()}
 async function regrant(){try{if((await fh.requestPermission({mode:'readwrite'}))==='granted'){fhNeed=false;await writeFile()}}catch(e){}drawBackup()}
 function exportBackup(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,1)],{type:'application/json'}));a.download=`班級儀表板備份-${ymd(new Date())}.json`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1500);S.lastBackup=Date.now();save();drawBackup()}
 function importBackup(file){const r=new FileReader();r.onload=()=>{try{const o=JSON.parse(r.result);if(!o||typeof o!=='object'||typeof o.n!=='number'||!o.water)throw 0;
@@ -1547,6 +1557,49 @@ $('#wzNext').onclick=()=>{const i=S.wizStep||0;wizSave(i-1);if(i>=WZN.length-1){
 $('#wzSkip').onclick=()=>{S.wizStep=(S.wizStep||0)+1;save();wizDraw()};
 $('#wzBack').onclick=()=>{wizSave((S.wizStep||0)-1);S.wizStep=Math.max(0,(S.wizStep||0)-1);save();wizDraw()};
 $('#wizAgain').onclick=()=>{$('#dlg').classList.remove('on');S.wizStep=0;wizOpen()};
+/* 測試版：範例資料、橫幅與測試工具 */
+if(DEMO){
+ const demoSeed=()=>{S.setup=true;S.n=30;S.coinUp=5;S.coinPer=1;S.pinKb=false;S.demoSeeded=1;
+  const Wt=[0,1,2,3,4,6,8,9,12,14,16,20,22,24,0,0,5,7,10,13,15,18,21,23,2,0,11,17,19,24];S.water={};Wt.forEach((w,k)=>{if(w)S.water[k+1]=w});S.fish={};S.coll=[];S.stgLog=[];S.stgGot={};ensureFish();
+  S.pcoins={};for(let i=1;i<=30;i++)S.pcoins[i]=(i*7)%40;
+  const now=Date.now();
+  for(let i=1;i<=30;i++){const st=stageOf(S.water[i]||0);if(st>=1){S.stgGot[i]=st;for(let k=1;k<=st;k++)S.stgLog.push({t:now-(st-k+1)*864e5-i*6e5,seat:i,sid:S.fish[i],stage:k,coins:5})}}
+  [[3,6,false],[7,9,true],[12,12,false],[12,20,true],[20,4,false],[25,15,true]].forEach(([seat,d,sold])=>{const sp=pickSpecies();S.coll.push({sp,sold:false,from:seat,at:now-d*864e5,by:'demo',w:25,up:5,r:1});S.stgLog.push({t:now-d*864e5,seat,sid:sp,stage:4,coins:5});if(sold){const ci=S.coll.length-1;sellOne(ci);S.coll[ci].soldAt=now-(d-2)*864e5}});
+  S.notices=[{t:'本週五請帶水彩用具',until:'',imp:false},{t:'下週三下午全校大掃除，請穿著輕便服裝',until:ymd(new Date(now+14*864e5)),imp:true},{t:'（已過期的範例公告，不會顯示）',until:'2020-01-01',imp:false}];
+  S.done={};S.done[today()]={'0':[1,2,3,5,8,13,21],'1':[2,4,6]};
+  save();sha('1234').then(h=>{S.pin=h;S.rec=null;save()})};
+ if(!S.demoSeeded){demoSeed();renderAll();renderLeft();renderNotes();renderDuty()}
+ document.title='（測試版）'+document.title;
+ const dk=$('#dock'),bar=document.createElement('div');bar.id='demoBar';bar.className='glass ui';
+ bar.innerHTML='<span>🧪 <b>測試版</b>（不影響正式資料）　密碼 <b>1234</b></span><span style="display:flex;gap:8px"><button id="dmTools" class="pri">🛠 測試工具</button><button id="dmExit">離開</button></span>';
+ $('#stage').appendChild(bar);const place=()=>{bar.style.left=(dk.offsetLeft+dk.offsetWidth+14)+'px'};place();setTimeout(place,600);
+ const dl=document.createElement('div');dl.className='dlg';dl.id='demoDlg';dl.style.zIndex=96;
+ dl.innerHTML=`<div class="box" style="width:820px"><div class="cap">TEST TOOLS</div><h2 style="margin-bottom:6px">🛠 測試工具</h2><p class="mute" style="margin-top:0">這裡的操作只影響測試版的資料。</p>
+  <div class="dmS">打卡</div><div class="row dmR"><button data-dm="all">全班完成目前任務</button><button data-dm="rand">隨機 10 位完成目前任務</button></div>
+  <div class="dmS">飼料與成長（指定座號）</div><div class="row dmR"><span class="mute">座號</span><input id="dmSeat" type="number" min="1" max="60" value="1"><button data-dm="f1">＋1 飼料</button><button data-dm="f3">＋3 飼料</button><button data-dm="up">直接升一階</button><button data-dm="grad">直接畢業</button></div><div class="mute" id="dmSeatInfo" style="min-height:22px"></div>
+  <div class="dmS">模擬日期與時間　<span id="dmNow" style="color:var(--gold)"></span></div><div class="row dmR"><button data-dm="d-1">前一天</button><button data-dm="d1">後一天</button><button data-dm="d7">後七天</button><input id="dmTime" type="time"><button data-dm="time">套用時間</button><button data-dm="t0">回到現在</button></div>
+  <div class="dmS">模擬天氣</div><div class="row dmR"><button data-dm="w7">強風 7 級</button><button data-dm="w10">暴風 10 級</button><button data-dm="g9">陣風 9 級</button><button data-dm="aq160">空氣不良 AQI 160</button><button data-dm="aq30">空氣良好</button><button data-dm="wx0">恢復真實天氣</button></div>
+  <div class="dmS">資料</div><div class="row dmR"><button data-dm="reset" style="color:var(--bad)">↺ 重設測試資料</button><button data-dm="wiz">重新開啟設定精靈</button></div>
+  <div class="row" style="justify-content:flex-end;margin-top:14px"><button class="pri" id="dmClose" style="font-size:18px;padding:12px 28px">關閉</button></div></div>`;
+ $('#stage').appendChild(dl);
+ const st=document.createElement('style');st.textContent='#demoBar{right:196px;bottom:30px;height:64px;padding:0 10px 0 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:17px;border-color:var(--gold);background:rgba(70,48,8,.82);white-space:nowrap;overflow:hidden}#demoBar b{color:var(--gold)}#demoBar button{font-size:16px;padding:9px 14px;min-height:0}.dmS{margin:14px 0 6px;color:var(--acc);font-size:17px}.dmR{flex-wrap:wrap;gap:8px}.dmR button{font-size:17px;padding:11px 16px}.dmR input{width:auto;font-size:18px;padding:9px 10px}#dmSeat{width:90px;text-align:center}';document.head.appendChild(st);
+ const RD=window.__RD,OK=KEY+'.off',WK=KEY+'.wx',getOff=()=>+(localStorage.getItem(OK)||0)||0,setOff=v=>{localStorage.setItem(OK,String(v));location.reload()};
+ const showNow=()=>{const d=new Date();$('#dmNow').textContent=`目前是 ${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()} 星期${'日一二三四五六'[d.getDay()]} ${pad(d.getHours())}:${pad(d.getMinutes())}${getOff()?'（模擬中）':''}`};
+ const seatInfo=()=>{const i=+$('#dmSeat').value,w=S.water[i]||0,sp=S.fish[i]!=null?SP[S.fish[i]]:null;$('#dmSeatInfo').textContent=i>=1&&i<=S.n?`${i} 號：${sp?sp.name:'鳥蛋'}，${STAGES[stageOf(w)].n}，飼料 ${w}，金幣 ${pc(i)}`:''};
+ const setWx=o=>{let w={};try{w=JSON.parse(localStorage.getItem(WK)||'{}')||{}}catch(e){}Object.assign(w,o);localStorage.setItem(WK,JSON.stringify(w));weather()};
+ $('#dmTools').onclick=()=>{showNow();seatInfo();$('#dmTime').value=pad(new Date().getHours())+':'+pad(new Date().getMinutes());dl.classList.add('on')};
+ $('#dmClose').onclick=()=>dl.classList.remove('on');$('#dmExit').onclick=()=>{location.href='index.html?choose=1'};$('#dmSeat').oninput=seatInfo;
+ dl.onclick=e=>{const b=e.target.closest('[data-dm]');if(!b)return;const k=b.dataset.dm,i=+$('#dmSeat').value,okSeat=i>=1&&i<=S.n;
+  if(k==='all'){const c=ctxNow();for(let s=1;s<=S.n;s++)if(!doneOf(c).includes(s))setDone(s,true,c);save();renderAll()}
+  else if(k==='rand'){const c=ctxNow(),pool=[];for(let s=1;s<=S.n;s++)if(!doneOf(c).includes(s))pool.push(s);pool.sort(()=>Math.random()-.5).slice(0,10).forEach(s=>setDone(s,true,c));save();renderAll()}
+  else if(['f1','f3','up','grad'].includes(k)){if(!okSeat)return uiAlert('請輸入 1 到 '+S.n+' 的座號');const w=S.water[i]||0,stg=stageOf(w),r=k==='f1'?1:k==='f3'?3:k==='up'?Math.max(1,S.th[Math.min(4,stg+1)]-w):Math.max(1,S.th[4]-w);grow(i,r,'demo');save();renderAll();seatInfo()}
+  else if(k==='d-1')setOff(getOff()-864e5);else if(k==='d1')setOff(getOff()+864e5);else if(k==='d7')setOff(getOff()+7*864e5);else if(k==='t0')setOff(0);
+  else if(k==='time'){const v=$('#dmTime').value;if(!v)return;const [h,m]=v.split(':').map(Number),n=new Date(),t=new RD(n.getFullYear(),n.getMonth(),n.getDate(),h,m,0);setOff(t.getTime()-RD.now())}
+  else if(k==='w7')setWx({wind:15,gust:19,deg:45});else if(k==='w10')setWx({wind:26,gust:31,deg:315});else if(k==='g9')setWx({wind:6,gust:22,deg:180});
+  else if(k==='aq160')setWx({aqi:160,pm:68});else if(k==='aq30')setWx({aqi:30,pm:6});else if(k==='wx0'){localStorage.removeItem(WK);weather()}
+  else if(k==='reset'){uiConfirm('把測試版的資料重設回範例狀態？\n（正式班級的資料不受影響）',()=>{localStorage.removeItem(KEY);localStorage.removeItem(OK);localStorage.removeItem(WK);location.reload()},'重設')}
+  else if(k==='wiz'){dl.classList.remove('on');S.wizStep=0;wizOpen()}};
+}
 if(!S.setup)wizOpen();
 </script>
 </body>
