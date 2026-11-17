@@ -74,10 +74,14 @@ input:focus,textarea:focus{border-color:var(--acc)}
 #topc{position:absolute;top:22px;left:0;right:0;text-align:center}
 #topc small{display:block;letter-spacing:6px;font-size:12px;color:var(--mute)}
 #topc h1{margin:2px 0 0;font-size:20px;font-weight:600;letter-spacing:4px}
-#cnote{position:absolute;left:20px;right:20px;bottom:20px;height:86px;box-sizing:border-box;padding:8px 22px;display:flex;align-items:center;gap:14px;cursor:pointer;font-size:27px;line-height:1.3;border-radius:20px;background:rgba(0,0,0,.32);border:1px solid var(--line)}
-#cnote .tag{flex:none;font-weight:700;color:var(--gold)}#cnote .txt{flex:1;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}#cnote .cnt{flex:none;color:var(--mute);font-size:17px}
-#cnote .txt.mute{font-size:20px;font-weight:400}
-#cnote.imp{border-color:#ff9b6b;background:rgba(120,40,20,.6)}#cnote.imp .tag{color:#ffb090}
+#cnote{position:absolute;left:20px;right:20px;bottom:20px;height:86px;box-sizing:border-box;padding:8px 12px;display:flex;flex-direction:column;gap:8px;cursor:pointer;font-size:24px;line-height:1.25;border-radius:20px;background:rgba(0,0,0,.32);border:1px solid var(--line)}
+#center.nowtab #cnote{height:170px}
+#cnote .nit{flex:1;min-height:0;display:flex;align-items:center;gap:12px;padding:0 14px;border-radius:14px;background:rgba(255,255,255,.07)}
+#cnote .nit.imp{background:rgba(150,50,25,.6);box-shadow:inset 0 0 0 1px #ff9b6b}
+#cnote .tag{flex:none;font-weight:700;color:var(--gold);font-size:20px}#cnote .nit.imp .tag{color:#ffb090}
+#cnote .txt{flex:1;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}#cnote .txt.mute{font-size:20px;font-weight:400}
+#cnote .cnt{flex:none;color:var(--mute);font-size:16px}#cnote.one .txt{font-size:28px}
+#center.nowtab #cbody{inset:20px 20px 206px 20px}
 .ntitem{display:flex;gap:12px;align-items:flex-start;font-size:24px;line-height:1.5;padding:12px 16px;border-radius:14px;background:var(--cell);margin-bottom:8px}
 .ntitem.imp{background:rgba(160,60,30,.35);border:1px solid #ff9b6b}.ntitem .nt{flex:1}.ntitem .nd{font-size:15px;color:var(--mute);white-space:nowrap}
 .ner{display:grid;grid-template-columns:1fr 170px 76px 46px;gap:8px;align-items:center;margin-bottom:8px}.ner input[type=checkbox]{width:auto}
@@ -128,15 +132,15 @@ li.it.cur{background:rgba(95,211,176,.15);border-radius:10px}
 input[type=checkbox]{width:22px;height:22px;accent-color:#5fd3b0;padding:0}
 .x{background:none;color:var(--mute);padding:2px 8px}
 /* 中央 */
-.flip{background:#0a1218;border-radius:22px;text-align:center;font-size:130px;font-weight:800;line-height:1.1;padding:4px 0;font-variant-numeric:tabular-nums;letter-spacing:2px}
-.cn{display:flex;flex-direction:column;justify-content:space-between;height:100%}.dt{text-align:center;font-size:35px;margin:0}.dt b{color:var(--acc);font-weight:500}
+.flip{background:#0a1218;border-radius:22px;text-align:center;font-size:128px;font-weight:800;line-height:1.1;padding:4px 0;font-variant-numeric:tabular-nums;letter-spacing:2px}
+.cn{display:flex;flex-direction:column;justify-content:space-between;height:100%}.dt{text-align:center;font-size:34px;margin:0;white-space:nowrap}.dt b{color:var(--acc);font-weight:500}
 .wx{display:flex;align-items:center;justify-content:space-between;background:#0a1218;border-radius:18px;padding:12px 26px;height:112px}
 
 .wx{gap:8px;padding:12px 18px!important}.wx big{font-size:44px;font-weight:700;line-height:1.15}.wx .mute{font-size:19px!important}.wx{height:116px}
 .bot{position:absolute;left:0;right:0;bottom:-2px;display:flex;justify-content:space-between;align-items:center}
 .per{background:rgba(95,211,176,.25);border:1px solid var(--acc);border-radius:26px;padding:10px 24px;display:flex;flex-direction:column;gap:2px;max-width:75%}
-.cn .bot{position:static;gap:16px}.cn .per{max-width:none;flex:1;min-width:0}.dn{text-align:right;line-height:1.2;white-space:nowrap}.dn b{font-size:48px}.dn .mute{font-size:18px}
-.per .pm{font-size:42px;line-height:1.15}.per .pm.lg{font-size:30px}.per .ps{font-size:20px;color:var(--mute)}
+.cn .bot{position:static;gap:16px}.cn .per{max-width:none;flex:1;min-width:0}.dn{text-align:right;line-height:1.2;white-space:nowrap}.dn b{font-size:52px}.dn .mute{font-size:18px}
+.per .pm{font-size:46px;line-height:1.15}.per .pm.lg{font-size:32px}.per .ps{font-size:22px;color:var(--mute)}
 .bigt{text-align:center;font-size:128px;font-weight:800;font-variant-numeric:tabular-nums;background:#0a1218;border-radius:22px;padding:6px 0;line-height:1.15}
 .bar{height:10px;background:rgba(0,0,0,.35);border-radius:99px;overflow:hidden;margin:14px 0}.bar i{display:block;height:100%;background:var(--acc);transition:width .5s}
 .pick{font-size:170px;font-weight:800;text-align:center;color:var(--acc);height:230px;line-height:230px}
@@ -824,9 +828,12 @@ function tick(){const d=new Date();
 /* 近期公告・注意事項：首頁下方輪播（只顯示還沒到期的），點一下看全部，老師密碼才能編輯 */
 const noteAll=()=>S.notices||[];
 const noteActive=()=>noteAll().filter(n=>n.t&&(!n.until||n.until>=today())).sort((a,b)=>(b.imp?1:0)-(a.imp?1:0));
-let noteI=0;
-function renderNotes(){const el=$('#cnote');if(!el)return;const a=noteActive();if(!a.length){el.classList.remove('imp');el.innerHTML='<span class="tag">📢 公告</span><span class="txt mute">目前沒有公告（點這裡查看或新增）</span>';return}if(noteI>=a.length)noteI=0;const n=a[noteI];el.classList.toggle('imp',!!n.imp);el.innerHTML=`<span class="tag">${n.imp?'❗ 重要':'📢 公告'}</span><span class="txt">${esc(n.t)}</span>${a.length>1?`<span class="cnt">${noteI+1} / ${a.length}</span>`:''}`}
-setInterval(()=>{const a=noteActive();if(a.length>1)noteI=(noteI+1)%a.length;renderNotes()},8000);
+let noteI=0,notePer=2;
+function renderNotes(){const el=$('#cnote');if(!el)return;const a=noteActive(),per=notePer;
+ if(!a.length){el.classList.remove('one');el.innerHTML='<div class="nit"><span class="tag">📢 公告</span><span class="txt mute">目前沒有公告（點這裡查看或新增）</span></div>';return}
+ const pages=Math.ceil(a.length/per);if(noteI>=pages)noteI=0;const part=a.slice(noteI*per,noteI*per+per);el.classList.toggle('one',part.length===1);
+ el.innerHTML=part.map((n,k)=>`<div class="nit${n.imp?' imp':''}"><span class="tag">${n.imp?'❗ 重要':'📢 公告'}</span><span class="txt">${esc(n.t)}</span>${k===0&&pages>1?`<span class="cnt">${noteI+1} / ${pages}</span>`:''}</div>`).join('')}
+setInterval(()=>{const a=noteActive(),per=notePer,pages=Math.ceil(a.length/per);if(pages>1)noteI=(noteI+1)%pages;renderNotes()},8000);
 function openNotes(){const a=noteActive();$('#ntList').innerHTML=a.length?a.map(n=>`<div class="ntitem${n.imp?' imp':''}"><span>${n.imp?'❗':'📢'}</span><span class="nt">${esc(n.t)}</span>${n.until?`<span class="nd">到 ${esc(n.until.slice(5).replace('-','/'))}</span>`:''}</div>`).join(''):'<p class="mute" style="font-size:20px">目前沒有公告。</p>';$('#noteDlg').classList.add('on')}
 function noteRow(n){n=n||{};return `<div class="ner"><input class="neT" value="${esc(n.t||'')}" placeholder="例如：週五請帶水彩用具"><input class="neD" type="date" value="${esc(n.until||'')}"><label><input class="neI" type="checkbox"${n.imp?' checked':''}> 重要</label><button class="neX" aria-label="刪除這一則">✕</button></div>`}
 function openNoteEd(){$('#neRows').innerHTML=(noteAll().length?noteAll():[{}]).map(noteRow).join('');$('#noteDlg').classList.remove('on');$('#noteEdDlg').classList.add('on')}
@@ -912,7 +919,7 @@ setInterval(tick,1000);
 /* 天氣 */
 const WC={0:'晴',1:'大致晴朗',2:'多雲',3:'陰',45:'霧',48:'霧',51:'毛毛雨',53:'毛毛雨',55:'毛毛雨',61:'小雨',63:'雨',65:'大雨',80:'陣雨',81:'陣雨',82:'大雷陣雨',95:'雷雨',96:'雷雨',99:'雷雨'};
 let wxHTML='<span class="mute">天氣載入中…</span>';
-async function weather(){try{const c=S.city;const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${c.lat}&longitude=${c.lon}&current=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m&wind_speed_unit=ms&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=1`);const j=await r.json(),d=j.daily;
+async function weather(){if(!$('#wx'))return;try{const c=S.city;const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${c.lat}&longitude=${c.lon}&current=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m&wind_speed_unit=ms&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=1`);const j=await r.json(),d=j.daily;
  let aq='';try{const a=await (await fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${c.lat}&longitude=${c.lon}&current=us_aqi,pm2_5&timezone=auto`)).json(),v=Math.round(a.current.us_aqi),pm=Math.round(a.current.pm2_5);
   const B=[[50,'良好','#3fcf6a','#04210f'],[100,'普通','#ffe14d','#3a3000'],[150,'對敏感族群不健康','#ff9c3d','#3a1a00'],[200,'對所有族群不健康','#ff5a5a','#3a0000'],[300,'非常不健康','#b06cff','#1a0033'],[1e9,'危害','#a02840','#fff']],b=B.find(x=>v<=x[0]);
   aq=`<div style="text-align:center"><div class="mute" style="font-size:14px">空氣品質</div><span style="display:inline-block;margin-top:2px;padding:2px 14px;border-radius:99px;font-size:${b[1].length>4?16:22}px;font-weight:700;background:${b[2]};color:${b[3]}">${b[1]}</span><div class="mute" style="font-size:14px">AQI ${v}　PM2.5 ${pm}</div></div>`}catch(e){aq=`<div style="text-align:center"><div class="mute" style="font-size:14px">空氣品質</div><div class="mute">—</div></div>`}
@@ -960,13 +967,12 @@ function taskSel(){const all=(((S.done[today()]||{})[curTask])||[]).length>=S.n;
 function checkGrid(px=56){const dn=(S.done[today()]||{})[curTask]||[];let g='';
  for(let i=1;i<=S.n;i++){const ok=dn.includes(i);g+=`<div class="cell ${ok?'ok':''}" data-chk="${i}"><div class="em" style="height:${px*.8+4}px;display:flex;align-items:center;justify-content:center">${fishIcon(i,px)}</div><div class="no">${i} 號</div>${ok?'<span class="bd">✔</span>':''}</div>`}
  return g}
-function renderCenter(){$$('#ctabs button').forEach(b=>b.classList.toggle('on',b.dataset.c===C));const el=$('#cbody');
+function renderCenter(){$$('#ctabs button').forEach(b=>b.classList.toggle('on',b.dataset.c===C));const el=$('#cbody');$('#center').classList.toggle('nowtab',C==='now');notePer=C==='now'?2:1;if(typeof renderNotes==='function')renderNotes();
  if(C==='now'){const d=new Date(),done=stats().full;
   el.innerHTML=`<div class="cn"><div class="flip" id="flip"></div>
   <div class="dt">🌐 台灣時間　${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日　<b>星期${'日一二三四五六'[d.getDay()]}</b></div>
-  <div class="wx" id="wx" style="cursor:pointer" title="點一下更換地點">${wxHTML}</div>
   <div class="bot"><span class="per" id="per">${perHTML()}</span><span class="dn"><b>${done}</b> <span class="mute">/ ${S.n}<br>已完成任務</span></span></div></div>`;
-  $('#wx').onclick=()=>$('#setBtn').click();tick()}
+  tick()}
  else if(C==='down'||C==='pomo'){const pomo=C==='pomo';if(tMode!==C){stopT();tMode=C;tTotal=tLeft=(pomo?25:(S.cdLast||10))*60;pPhase='work'}
   const presets=pomo?[['專心學習 25分',25*60,'work'],['小休息 5分',5*60,'break'],['大休息 15分',15*60,'break']]:[[1],[2],[3],[5],[8],[10]].map(x=>[x[0]+'分',x[0]*60]);
   el.innerHTML=`<div class="mute" style="text-align:center;margin-bottom:10px">${pomo?(pPhase==='work'?'🍅 專注時間':'☕ 休息時間'):'⏳ 倒數計時'}</div><div class="bigt" id="tbig">${fmt(tLeft)}</div><div class="bar"><i id="tbar" style="width:${100*(tTotal-tLeft)/tTotal}%"></i></div>
@@ -1543,7 +1549,7 @@ applyPerf();perfProbe();
 migrateSpecies();
 renderLeft();ytPlay(ytOk(S.ytCur)?S.ytCur:Math.max(0,S.yt.findIndex(x=>x)),false);renderCenter();renderTop();renderView();weather();keepAwake();
 /* 設定精靈：第一次使用時，一次一個步驟完成基本設定（進度會存起來，之後可從教師控制台重新開啟） */
-const WZN=['開啟方式與音樂','班級人數','老師密碼','學期與開學日','天氣地點','作息與課表','每日任務','常用連結','資料保存與備份','完成'];
+const WZN=['開啟方式與音樂','班級人數','老師密碼','學期與開學日','作息與課表','每日任務','常用連結','資料保存與備份','完成'];
 let wzMsg='';
 function wizOpen(){$('#wiz').classList.add('on');wizDraw()}
 function wzH(t,sub){return `<h2 style="font-size:30px;margin:0 0 6px">${t}</h2><p class="mute" style="margin:0 0 14px;line-height:1.7">${sub}</p>`}
@@ -1570,19 +1576,17 @@ function wizDraw(){const i=Math.max(0,Math.min(WZN.length-1,S.wizStep||0));S.wiz
   nx.disabled=!S.pin;
   $('#wzPin').onclick=()=>{S.pinKb=S.pinKb;openPin('set',()=>wizDraw())};$('#wzKb').onclick=()=>{S.pinKb=true;save();wizDraw()};$('#wzPad').onclick=()=>{S.pinKb=false;save();wizDraw()}}
  else if(j===2){b.innerHTML=wzH('學期與開學日','首頁標題下會顯示「開學第幾週」。開學日請依教育局公告填寫。')+`<p class="mute" style="margin-bottom:4px">學期名稱</p><input id="wzSem" value="${esc(S.semName||'')}" style="font-size:22px;padding:12px"><p class="mute" style="margin:14px 0 4px">開學日</p><input id="wzSemD" type="date" value="${esc(S.semStart||'')}" style="font-size:22px;padding:12px"><p class="mute" style="margin-top:12px">預設為 115 學年度第 1 學期，2026-08-31 開學（全國統一日期，請確認臺中市公告）。</p>`}
- else if(j===3){b.innerHTML=wzH('天氣地點','天氣與空氣品質會顯示在首頁中間。')+`<div style="font-size:22px;margin:6px 0 12px">目前地點：<b id="wzCity">${esc(S.city.name)}</b></div><div class="row"><input id="wzCityIn" placeholder="想換地點時輸入，例如：台北、高雄" style="font-size:20px;padding:12px"><button id="wzCityBtn" style="font-size:18px;padding:12px 22px">切換</button></div><p class="mute" id="wzCityMsg" style="margin-top:8px;min-height:24px"></p><p class="mute">預設為台中市清水區，不用換就直接按「下一步」。</p>`;
-  $('#wzCityBtn').onclick=async()=>{const q=$('#wzCityIn').value.trim();if(!q)return;$('#wzCityMsg').textContent='查詢中…';try{const r=await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=1&language=zh`);const j=await r.json();if(!j.results){$('#wzCityMsg').textContent='找不到這個地點';return}const p=j.results[0];S.city={name:p.name,lat:p.latitude,lon:p.longitude};save();$('#wzCity').textContent=p.name;$('#wzCityMsg').textContent='已切換到 '+p.name;weather()}catch(e){$('#wzCityMsg').textContent='查詢失敗（需要網路）'}}}
- else if(j===4){const wed=(S.schedDay&&S.schedDay[3])||[];b.innerHTML=wzH('作息與課表','已套用預設作息與課表（清水國小 115 學年度第 1 學期 五年丙班）。')+`<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div><div class="mute" style="margin-bottom:4px">星期一、二、四、五（整天）</div><pre style="margin:0;white-space:pre-wrap;font:inherit;font-size:17px;line-height:1.7;background:rgba(0,0,0,.25);border-radius:12px;padding:10px">${esc(wzLines(S.sched))}</pre></div><div><div class="mute" style="margin-bottom:4px">星期三（半天）</div><pre style="margin:0;white-space:pre-wrap;font:inherit;font-size:17px;line-height:1.7;background:rgba(0,0,0,.25);border-radius:12px;padding:10px">${esc(wzLines(wed))}</pre></div></div><p class="mute" style="margin-top:12px;line-height:1.7">每節的科目（國語文、數學…）也已填好。要修改作息或課表，完成精靈後到「教師控制台」調整。</p>`}
- else if(j===5){b.innerHTML=wzH('每日任務','同學每天完成的項目，一行一項。完成一項可得到飼料。')+`<textarea id="wzTasks" rows="7" style="font-size:20px;line-height:1.7">${esc(wzLines(S.tasks))}</textarea>`}
- else if(j===6){b.innerHTML=wzH('常用連結','首頁右下角 🔗 的清單，一行一個：名稱 網址（網址要以 http 或 https 開頭）。')+`<textarea id="wzLinks" rows="7" style="font-size:17px;line-height:1.7">${esc((S.links||[]).map(l=>l.n+' '+l.u).join('\n'))}</textarea>`}
- else if(j===7){const ok=FS;b.innerHTML=wzH('資料保存與備份','資料自動存在這台電腦的瀏覽器裡。為了避免電腦故障或清除瀏覽資料，建議再多存一份。')+`<div style="line-height:1.8;font-size:18px;margin-bottom:6px">${ok?`自動備份位置：<b id="wzFh">${fh?esc(fh.name):'尚未設定'}</b>`:'<span style="color:var(--gold)">這個瀏覽器不支援自動備份，請改用 Chrome 或 Edge，或每週手動備份。</span>'}</div>${ok?`<button class="${fh?'':'pri'}" id="wzLink" style="${wzBig}">📁 ${fh?'重新選擇':'選擇'}自動備份位置</button>`:''}<button id="wzExp" style="${wzBig}">⬇ 現在下載一份備份檔</button><p class="mute" style="margin-top:14px;line-height:1.8">建議把備份檔放在「Google 雲端硬碟」的同步資料夾裡，這樣備份會自動上傳雲端；如果沒有同步資料夾，就先存在電腦本機，並每週手動備份一次。<br>備份檔沒有加密，請不要放在學生看得到的地方。</p>`;
+ else if(j===3){const wed=(S.schedDay&&S.schedDay[3])||[];b.innerHTML=wzH('作息與課表','已套用預設作息與課表（清水國小 115 學年度第 1 學期 五年丙班）。')+`<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div><div class="mute" style="margin-bottom:4px">星期一、二、四、五（整天）</div><pre style="margin:0;white-space:pre-wrap;font:inherit;font-size:17px;line-height:1.7;background:rgba(0,0,0,.25);border-radius:12px;padding:10px">${esc(wzLines(S.sched))}</pre></div><div><div class="mute" style="margin-bottom:4px">星期三（半天）</div><pre style="margin:0;white-space:pre-wrap;font:inherit;font-size:17px;line-height:1.7;background:rgba(0,0,0,.25);border-radius:12px;padding:10px">${esc(wzLines(wed))}</pre></div></div><p class="mute" style="margin-top:12px;line-height:1.7">每節的科目（國語文、數學…）也已填好。要修改作息或課表，完成精靈後到「教師控制台」調整。</p>`}
+ else if(j===4){b.innerHTML=wzH('每日任務','同學每天完成的項目，一行一項。完成一項可得到飼料。')+`<textarea id="wzTasks" rows="7" style="font-size:20px;line-height:1.7">${esc(wzLines(S.tasks))}</textarea>`}
+ else if(j===5){b.innerHTML=wzH('常用連結','首頁右下角 🔗 的清單，一行一個：名稱 網址（網址要以 http 或 https 開頭）。')+`<textarea id="wzLinks" rows="7" style="font-size:17px;line-height:1.7">${esc((S.links||[]).map(l=>l.n+' '+l.u).join('\n'))}</textarea>`}
+ else if(j===6){const ok=FS;b.innerHTML=wzH('資料保存與備份','資料自動存在這台電腦的瀏覽器裡。為了避免電腦故障或清除瀏覽資料，建議再多存一份。')+`<div style="line-height:1.8;font-size:18px;margin-bottom:6px">${ok?`自動備份位置：<b id="wzFh">${fh?esc(fh.name):'尚未設定'}</b>`:'<span style="color:var(--gold)">這個瀏覽器不支援自動備份，請改用 Chrome 或 Edge，或每週手動備份。</span>'}</div>${ok?`<button class="${fh?'':'pri'}" id="wzLink" style="${wzBig}">📁 ${fh?'重新選擇':'選擇'}自動備份位置</button>`:''}<button id="wzExp" style="${wzBig}">⬇ 現在下載一份備份檔</button><p class="mute" style="margin-top:14px;line-height:1.8">建議把備份檔放在「Google 雲端硬碟」的同步資料夾裡，這樣備份會自動上傳雲端；如果沒有同步資料夾，就先存在電腦本機，並每週手動備份一次。<br>備份檔沒有加密，請不要放在學生看得到的地方。</p>`;
   if(ok)$('#wzLink').onclick=async()=>{await linkFile();wizDraw()};$('#wzExp').onclick=()=>{exportBackup();$('#wzExp').textContent='✅ 已下載備份檔'}}
- else{b.innerHTML=wzH('🎉 設定完成','確認一下，之後都可以到「教師控制台」修改，也能重新開啟這個精靈。')+`<ul style="line-height:2;font-size:20px;list-style:none;padding:0;margin:0">${[['班級人數',S.n+' 人'],['老師密碼',S.pin?'已設定（'+(S.pinKb?'只用實體鍵盤':'螢幕數字鍵盤')+'）':'尚未設定'],['學期',(S.semName||'—')+'　開學日 '+(S.semStart||'—')],['天氣地點',S.city.name],['每日任務',(S.tasks||[]).length+' 項'],['常用連結',(S.links||[]).length+' 個'],['自動備份',fh?fh.name:'尚未設定']].map(x=>`<li><span class="mute" style="display:inline-block;width:130px">${x[0]}</span>${esc(x[1])}</li>`).join('')}</ul>`}
+ else{b.innerHTML=wzH('🎉 設定完成','確認一下，之後都可以到「教師控制台」修改，也能重新開啟這個精靈。')+`<ul style="line-height:2;font-size:20px;list-style:none;padding:0;margin:0">${[['班級人數',S.n+' 人'],['老師密碼',S.pin?'已設定（'+(S.pinKb?'只用實體鍵盤':'螢幕數字鍵盤')+'）':'尚未設定'],['學期',(S.semName||'—')+'　開學日 '+(S.semStart||'—')],['每日任務',(S.tasks||[]).length+' 項'],['常用連結',(S.links||[]).length+' 個'],['自動備份',fh?fh.name:'尚未設定']].map(x=>`<li><span class="mute" style="display:inline-block;width:130px">${x[0]}</span>${esc(x[1])}</li>`).join('')}</ul>`}
  save()}
 function wizSave(i){if(i<0)return;if(i===0){S.n=Math.max(1,Math.min(60,+$('#wzN').value||30))}
  else if(i===2){S.semName=$('#wzSem').value.trim();S.semStart=$('#wzSemD').value;renderWeek()}
- else if(i===5){const t=$('#wzTasks').value.split('\n').map(x=>x.trim()).filter(Boolean);if(t.length){S.tasks=t;if(+curTask>=S.tasks.length)curTask='0'}}
- else if(i===6){S.links=$('#wzLinks').value.split('\n').map(t=>t.trim()).filter(Boolean).map(t=>{const m=t.match(/^(.*?)\s*(https?:\/\/\S+)$/i);return m?{n:m[1]||m[2],u:m[2]}:null}).filter(Boolean)}}
+ else if(i===4){const t=$('#wzTasks').value.split('\n').map(x=>x.trim()).filter(Boolean);if(t.length){S.tasks=t;if(+curTask>=S.tasks.length)curTask='0'}}
+ else if(i===5){S.links=$('#wzLinks').value.split('\n').map(t=>t.trim()).filter(Boolean).map(t=>{const m=t.match(/^(.*?)\s*(https?:\/\/\S+)$/i);return m?{n:m[1]||m[2],u:m[2]}:null}).filter(Boolean)}}
 $('#wzNext').onclick=()=>{const i=S.wizStep||0;wizSave(i-1);if(i>=WZN.length-1){S.setup=true;S.wizStep=0;save();$('#wiz').classList.remove('on');renderAll();return}S.wizStep=i+1;save();wizDraw()};
 $('#wzSkip').onclick=()=>{S.wizStep=(S.wizStep||0)+1;save();wizDraw()};
 $('#wzBack').onclick=()=>{wizSave((S.wizStep||0)-1);S.wizStep=Math.max(0,(S.wizStep||0)-1);save();wizDraw()};
