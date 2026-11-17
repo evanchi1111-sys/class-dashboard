@@ -59,13 +59,13 @@ input:focus,textarea:focus{border-color:var(--acc)}
 #topc small{display:block;letter-spacing:6px;font-size:12px;color:var(--mute)}
 #topc h1{margin:2px 0 0;font-size:20px;font-weight:600;letter-spacing:4px}
 #cnote{position:absolute;left:20px;right:20px;bottom:20px;height:86px;box-sizing:border-box;padding:8px 12px;display:flex;flex-direction:column;gap:8px;cursor:pointer;font-size:24px;line-height:1.25;border-radius:20px;background:rgba(0,0,0,.32);border:1px solid var(--line)}
-#center.nowtab #cnote{height:170px}
+#center.nowtab #cnote{position:static;height:auto;flex:1 1 0;min-height:0;font-size:28px;gap:10px}#center.nowtab #cnote .tag{font-size:22px}#center.nowtab #cnote.one .txt{font-size:34px}
 #cnote .nit{flex:1;min-height:0;display:flex;align-items:center;gap:12px;padding:0 14px;border-radius:14px;background:rgba(255,255,255,.07)}
 #cnote .nit.imp{background:rgba(150,50,25,.6);box-shadow:inset 0 0 0 1px #ff9b6b}
 #cnote .tag{flex:none;font-weight:700;color:var(--gold);font-size:20px}#cnote .nit.imp .tag{color:#ffb090}
 #cnote .txt{flex:1;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}#cnote .txt.mute{font-size:20px;font-weight:400}
 #cnote .cnt{flex:none;color:var(--mute);font-size:16px}#cnote.one .txt{font-size:28px}
-#center.nowtab #cbody{inset:20px 20px 206px 20px}
+#center.nowtab #cbody{inset:20px}
 .ntitem{display:flex;gap:12px;align-items:flex-start;font-size:24px;line-height:1.5;padding:12px 16px;border-radius:14px;background:var(--cell);margin-bottom:8px}
 .ntitem.imp{background:rgba(160,60,30,.35);border:1px solid #ff9b6b}.ntitem .nt{flex:1}.ntitem .nd{font-size:15px;color:var(--mute);white-space:nowrap}
 .ner{display:grid;grid-template-columns:1fr 170px 76px 46px;gap:8px;align-items:center;margin-bottom:8px}.ner input[type=checkbox]{width:auto}
@@ -123,8 +123,8 @@ input[type=checkbox]{width:22px;height:22px;accent-color:#5fd3b0;padding:0}
 .wx{gap:8px;padding:12px 18px!important}.wx big{font-size:44px;font-weight:700;line-height:1.15}.wx .mute{font-size:19px!important}.wx{height:116px}
 .bot{position:absolute;left:0;right:0;bottom:-2px;display:flex;justify-content:space-between;align-items:center}
 .per{background:rgba(95,211,176,.25);border:1px solid var(--acc);border-radius:26px;padding:10px 24px;display:flex;flex-direction:column;gap:2px;max-width:75%}
-.cn .bot{position:static;gap:16px}.cn .per{max-width:none;flex:1;min-width:0}.dn{text-align:right;line-height:1.2;white-space:nowrap}.dn b{font-size:52px}.dn .mute{font-size:18px}
-.per .pm{font-size:46px;line-height:1.15}.per .pm.lg{font-size:32px}.per .ps{font-size:22px;color:var(--mute)}
+.cn .bot{position:static;gap:16px}.cn .per{max-width:none;flex:1;min-width:0}.dn{text-align:right;line-height:1.2;white-space:nowrap}.dn b{font-size:44px}.dn .mute{font-size:18px}
+.per .pm{font-size:40px;line-height:1.1}.per .pm.lg{font-size:28px}.per .ps{font-size:20px;color:var(--mute)}.cn .per{padding:6px 22px;gap:0}
 .bigt{text-align:center;font-size:128px;font-weight:800;font-variant-numeric:tabular-nums;background:#0a1218;border-radius:22px;padding:6px 0;line-height:1.15}
 .bar{height:10px;background:rgba(0,0,0,.35);border-radius:99px;overflow:hidden;margin:14px 0}.bar i{display:block;height:100%;background:var(--acc);transition:width .5s}
 .pick{font-size:170px;font-weight:800;text-align:center;color:var(--acc);height:230px;line-height:230px}
@@ -978,12 +978,12 @@ function taskSel(){const all=(((S.done[today()]||{})[curTask])||[]).length>=S.n;
 function checkGrid(px=56){const dn=(S.done[today()]||{})[curTask]||[];let g='';
  for(let i=1;i<=S.n;i++){const ok=dn.includes(i);g+=`<div class="cell ${ok?'ok':''}" data-chk="${i}"><div class="em" style="height:${px*.8+4}px;display:flex;align-items:center;justify-content:center">${fishIcon(i,px)}</div><div class="no">${i} 號</div>${ok?'<span class="bd">✔</span>':''}</div>`}
  return g}
-function renderCenter(){$$('#ctabs button').forEach(b=>b.classList.toggle('on',b.dataset.c===C));const el=$('#cbody');$('#center').classList.toggle('nowtab',C==='now');notePer=C==='now'?2:1;if(typeof renderNotes==='function')renderNotes();
+function renderCenter(){$$('#ctabs button').forEach(b=>b.classList.toggle('on',b.dataset.c===C));$('#center').appendChild($('#cnote'));const el=$('#cbody');$('#center').classList.toggle('nowtab',C==='now');notePer=C==='now'?2:1;if(typeof renderNotes==='function')renderNotes();
  if(C==='now'){const d=new Date(),done=stats().full;
   el.innerHTML=`<div class="cn"><div class="flip" id="flip"></div>
   <div class="dt">🌐 台灣時間　${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日　<b>星期${'日一二三四五六'[d.getDay()]}</b></div>
   <div class="bot"><span class="per" id="per">${perHTML()}</span><span class="dn"><b>${done}</b> <span class="mute">/ ${S.n}<br>已完成任務</span></span></div></div>`;
-  tick()}
+  $('.cn').insertBefore($('#cnote'),$('.cn .bot'));tick()}
  else if(C==='down'||C==='pomo'){const pomo=C==='pomo';if(tMode!==C){stopT();tMode=C;tTotal=tLeft=(pomo?25:(S.cdLast||10))*60;pPhase='work'}
   const presets=pomo?[['專心學習 25分',25*60,'work'],['小休息 5分',5*60,'break'],['大休息 15分',15*60,'break']]:[[1],[2],[3],[5],[8],[10]].map(x=>[x[0]+'分',x[0]*60]);
   el.innerHTML=`<div class="mute" style="text-align:center;margin-bottom:10px">${pomo?(pPhase==='work'?'🍅 專注時間':'☕ 休息時間'):'⏳ 倒數計時'}</div><div class="bigt" id="tbig">${fmt(tLeft)}</div><div class="bar"><i id="tbar" style="width:${100*(tTotal-tLeft)/tTotal}%"></i></div>
