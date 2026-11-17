@@ -59,7 +59,7 @@ input:focus,textarea:focus{border-color:var(--acc)}
 #topc small{display:block;letter-spacing:6px;font-size:12px;color:var(--mute)}
 #topc h1{margin:2px 0 0;font-size:20px;font-weight:600;letter-spacing:4px}
 #cnote{position:absolute;left:20px;right:20px;bottom:20px;height:86px;box-sizing:border-box;padding:8px 12px;display:flex;flex-direction:column;gap:8px;cursor:pointer;font-size:24px;line-height:1.25;border-radius:20px;background:rgba(0,0,0,.32);border:1px solid var(--line)}
-#center.nowtab #cnote{position:static;height:auto;flex:1 1 0;min-height:0;font-size:28px;gap:10px}#center.nowtab #cnote .tag{font-size:22px}#center.nowtab #cnote.one .txt{font-size:34px}
+#center.nowtab #cnote{position:static;height:auto;flex:1 1 0;min-height:0;font-size:24px;gap:8px}#center.nowtab #cnote .tag{font-size:19px}#center.nowtab #cnote.two{font-size:28px}#center.nowtab #cnote.two .txt{-webkit-line-clamp:3}#center.nowtab #cnote.one .txt{-webkit-line-clamp:6}#center.nowtab #cnote.two .tag{font-size:22px}#center.nowtab #cnote.one .txt{font-size:34px}
 #cnote .nit{flex:1;min-height:0;display:flex;align-items:center;gap:12px;padding:0 14px;border-radius:14px;background:rgba(255,255,255,.07)}
 #cnote .nit.imp{background:rgba(150,50,25,.6);box-shadow:inset 0 0 0 1px #ff9b6b}
 #cnote .tag{flex:none;font-weight:700;color:var(--gold);font-size:20px}#cnote .nit.imp .tag{color:#ffb090}
@@ -372,8 +372,6 @@ button.pri{background:var(--acc);color:#04231a;font-weight:700}
     <p class="mute" style="margin-bottom:4px">老師密碼輸入方式（選「只用實體鍵盤」前，請確認白板接有鍵盤）</p>
     <select id="pinMode"><option value="pad">螢幕數字鍵盤（預設）</option><option value="kb">只用實體鍵盤：視窗不顯示數字鍵盤</option></select>
     <div id="perfInfo" class="mute" style="font-size:13px;margin-top:4px;line-height:1.6"></div>
-    <p class="mute" style="margin-bottom:4px">天氣地點</p>
-    <div class="row"><input id="cityIn" placeholder="例如：金門、台北"><button id="cityBtn">切換</button></div>
     <p class="mute" style="margin-bottom:4px">開學日與週次（依教育局公告，換學期時修改）</p>
     <div class="row"><span class="mute">學期</span><input id="semName" placeholder="115 學年度第 1 學期"><span class="mute">開學日</span><input id="semIn" type="date"></div>
     <p class="mute" style="margin-bottom:4px">金幣設定</p>
@@ -839,10 +837,10 @@ function tick(){const d=new Date();
 /* 近期公告・注意事項：首頁下方輪播（只顯示還沒到期的），點一下看全部，老師密碼才能編輯 */
 const noteAll=()=>S.notices||[];
 const noteActive=()=>noteAll().filter(n=>n.t&&(!n.until||n.until>=today())).sort((a,b)=>(b.imp?1:0)-(a.imp?1:0));
-let noteI=0,notePer=2;
+let noteI=0,notePer=3;
 function renderNotes(){const el=$('#cnote');if(!el)return;const a=noteActive(),per=notePer;
  if(!a.length){el.classList.remove('one');el.innerHTML='<div class="nit"><span class="tag">📢 公告</span><span class="txt mute">目前沒有公告（點這裡查看或新增）</span></div>';return}
- const pages=Math.ceil(a.length/per);if(noteI>=pages)noteI=0;const part=a.slice(noteI*per,noteI*per+per);el.classList.toggle('one',part.length===1);
+ const pages=Math.ceil(a.length/per);if(noteI>=pages)noteI=0;const part=a.slice(noteI*per,noteI*per+per);el.classList.toggle('one',part.length===1);el.classList.toggle('two',part.length===2);
  el.innerHTML=part.map((n,k)=>`<div class="nit${n.imp?' imp':''}"><span class="tag">${n.imp?'❗ 重要':'📢 公告'}</span><span class="txt">${esc(n.t)}</span>${k===0&&pages>1?`<span class="cnt">${noteI+1} / ${pages}</span>`:''}</div>`).join('')}
 setInterval(()=>{const a=noteActive(),per=notePer,pages=Math.ceil(a.length/per);if(pages>1)noteI=(noteI+1)%pages;renderNotes()},8000);
 function openNotes(){const a=noteActive();$('#ntList').innerHTML=a.length?a.map(n=>`<div class="ntitem${n.imp?' imp':''}"><span>${n.imp?'❗':'📢'}</span><span class="nt">${esc(n.t)}</span>${n.until?`<span class="nd">到 ${esc(n.until.slice(5).replace('-','/'))}</span>`:''}</div>`).join(''):'<p class="mute" style="font-size:20px">目前沒有公告。</p>';$('#noteDlg').classList.add('on')}
@@ -978,7 +976,7 @@ function taskSel(){const all=(((S.done[today()]||{})[curTask])||[]).length>=S.n;
 function checkGrid(px=56){const dn=(S.done[today()]||{})[curTask]||[];let g='';
  for(let i=1;i<=S.n;i++){const ok=dn.includes(i);g+=`<div class="cell ${ok?'ok':''}" data-chk="${i}"><div class="em" style="height:${px*.8+4}px;display:flex;align-items:center;justify-content:center">${fishIcon(i,px)}</div><div class="no">${i} 號</div>${ok?'<span class="bd">✔</span>':''}</div>`}
  return g}
-function renderCenter(){$$('#ctabs button').forEach(b=>b.classList.toggle('on',b.dataset.c===C));$('#center').appendChild($('#cnote'));const el=$('#cbody');$('#center').classList.toggle('nowtab',C==='now');notePer=C==='now'?2:1;if(typeof renderNotes==='function')renderNotes();
+function renderCenter(){$$('#ctabs button').forEach(b=>b.classList.toggle('on',b.dataset.c===C));$('#center').appendChild($('#cnote'));const el=$('#cbody');$('#center').classList.toggle('nowtab',C==='now');notePer=C==='now'?3:1;if(typeof renderNotes==='function')renderNotes();
  if(C==='now'){const d=new Date(),done=stats().full;
   el.innerHTML=`<div class="cn"><div class="flip" id="flip"></div>
   <div class="dt">🌐 台灣時間　${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日　<b>星期${'日一二三四五六'[d.getDay()]}</b></div>
@@ -1585,7 +1583,6 @@ $('#saveDlg').onclick=()=>{
  S.pinKb=$('#pinMode').value==='kb';S.links=$('#lkTx').value.split('\n').map(t=>t.trim()).filter(Boolean).map(t=>{const m=t.match(/^(.*?)\s*(https?:\/\/\S+)$/i);return m?{n:m[1]||m[2],u:m[2]}:null}).filter(Boolean);S.tt={};$$('.ttIn').forEach(i=>{const v=i.value.trim();if(v){(S.tt[i.dataset.d]=S.tt[i.dataset.d]||{})[i.dataset.p]=v}});{const pv=$('#perfSel').value;if(pv!==(S.perf||'auto')){S.perf=pv;S.perfAutoLite=false}applyPerf();if(typeof perfProbe==='function'&&S.perf==='auto')perfProbe()}
  save();$('#dlg').classList.remove('on');renderAll();renderLeft();if(thGrad){const g=thGrad;thGrad=0;uiAlert((`有 ${g} 條魚已經超過畢業門檻，已經畢業進水族箱了。`))}};
 $('#nSet').onclick=()=>{};
-$('#cityBtn').onclick=async()=>{const q=$('#cityIn').value.trim();if(!q)return;try{const r=await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=1&language=zh`);const j=await r.json();if(!j.results)return uiAlert('找不到這個地點');const p=j.results[0];S.city={name:p.name,lat:p.latitude,lon:p.longitude};save();$('#cityIn').value='';weather();uiAlert('已切換到 '+p.name)}catch(e){uiAlert('查詢失敗（需要網路）')}};
 $('#resetGame').onclick=()=>forcePin(()=>uiConfirm('確定清空所有水族箱進度與每位同學的金幣？\n此動作無法復原。',()=>{S.fish={};S.water={};S.done={};S.feedDay={};S.pcoins={};S.log=[];S.coll=[];S.foodBase=0;save();renderAll()},'清空'),'清空進度需要老師密碼');
 
 /* 版面：三個面板固定位置，可放大到整個畫面 */
